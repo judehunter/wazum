@@ -1,0 +1,118 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`tree creation add constant 1`] = `
+{
+  "__nodeType": "add",
+  "dataType": "i32",
+  "left": {
+    "__nodeType": "const",
+    "dataType": "i32",
+    "returnType": "i32",
+    "value": 1,
+  },
+  "returnType": "i32",
+  "right": {
+    "__nodeType": "const",
+    "dataType": "i32",
+    "returnType": "i32",
+    "value": 2,
+  },
+}
+`;
+
+exports[`tree creation function 1`] = `
+{
+  "__nodeType": "func",
+  "body": {
+    "__nodeType": "block",
+    "name": null,
+    "returnType": "i32",
+    "value": [
+      {
+        "__nodeType": "drop",
+        "returnType": "none",
+        "value": {
+          "__nodeType": "add",
+          "dataType": "i32",
+          "left": {
+            "__nodeType": "localGet",
+            "dataType": "i32",
+            "name": "a",
+            "returnType": "i32",
+          },
+          "returnType": "i32",
+          "right": {
+            "__nodeType": "localGet",
+            "dataType": "i32",
+            "name": "b",
+            "returnType": "i32",
+          },
+        },
+      },
+      {
+        "__nodeType": "localSet",
+        "dataType": "i32",
+        "name": "ret",
+        "returnType": "none",
+        "value": {
+          "__nodeType": "add",
+          "dataType": "i32",
+          "left": {
+            "__nodeType": "localGet",
+            "dataType": "i32",
+            "name": "a",
+            "returnType": "i32",
+          },
+          "returnType": "i32",
+          "right": {
+            "__nodeType": "localGet",
+            "dataType": "i32",
+            "name": "b",
+            "returnType": "i32",
+          },
+        },
+      },
+      {
+        "__nodeType": "localGet",
+        "dataType": "i32",
+        "name": "ret",
+        "returnType": "i32",
+      },
+    ],
+  },
+  "dataType": "i32",
+  "locals": [
+    [
+      "i32",
+      "ret",
+    ],
+  ],
+  "name": "add",
+  "params": [
+    [
+      "i32",
+      "a",
+    ],
+    [
+      "i32",
+      "b",
+    ],
+  ],
+}
+`;
+
+exports[`tree creation function call 1`] = `
+{
+  "__nodeType": "call",
+  "args": [
+    {
+      "__nodeType": "localGet",
+      "dataType": "i32",
+      "name": "a",
+      "returnType": "i32",
+    },
+  ],
+  "name": "add",
+  "returnType": "i32",
+}
+`;
