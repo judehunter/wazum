@@ -35,6 +35,7 @@ export namespace Variant {
     locals: [type: DataType, name: string][];
     body: VariantExpr;
     dataType: T;
+    exportName: string | null;
   };
   export type Call<T extends DataType> = {
     __nodeType: 'call';

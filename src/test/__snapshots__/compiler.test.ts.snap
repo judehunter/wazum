@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`compiler add function (local.get, i32.add, exported func) 1`] = `
+"
+    (module
+      
+        (export "add" (func $add)
+      
+
+      
+        (func $add
+          (param $a i32)
+(param $b i32)
+          (result i32)
+          
+          
+    (i32.add 
+    (i32.get a)
+   
+    (i32.get b)
+  )
+  
+        )
+      
+    )
+  "
+`;

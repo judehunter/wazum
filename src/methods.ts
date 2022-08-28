@@ -27,21 +27,21 @@ const methods = {
       right,
       returnType: dataType,
     }),
-  func:
-    <T extends DataType>(dataType: T) =>
-    (
-      name: string,
-      params: [type: DataType, name: string][],
-      locals: [type: DataType, name: string][],
-      body: VariantExpr,
-    ): Variant.Func<T> => ({
-      __nodeType: 'func',
-      name,
-      params,
-      locals,
-      body,
-      dataType,
-    }),
+  // func:
+  //   <T extends DataType>(dataType: T) =>
+  //   (
+  //     name: string,
+  //     params: [type: DataType, name: string][],
+  //     locals: [type: DataType, name: string][],
+  //     body: VariantExpr,
+  //   ): Variant.Func<T> => ({
+  //     __nodeType: 'func',
+  //     name,
+  //     params,
+  //     locals,
+  //     body,
+  //     dataType,
+  //   }),
   const:
     <T extends DataType>(dataType: T) =>
     (value: number): Variant.Const<T> => ({
@@ -91,6 +91,7 @@ export const func = <T extends DataType, R extends T>(
   locals: signature.locals,
   body,
   dataType: signature.returnType,
+  exportName: null,
 });
 
 export const drop = (value: VariantExpr): Variant.Drop => ({

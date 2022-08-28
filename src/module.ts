@@ -2,13 +2,19 @@ import { DataType } from './methods';
 import { Variant } from './variants';
 
 export class Module {
-  private funcs: Variant.Func<DataType>[] = [];
+  funcs: Variant.Func<DataType>[] = [];
+  // memories = [];
 
   constructor() {}
 
-  addFunc = (func: Variant.Func<DataType>) => {
+  addFunc = (func: Variant.Func<DataType>, exported?: boolean | string) => {
+    if (exported) {
+      func.exportName = typeof exported === 'boolean' ? func.name : exported;
+    }
     this.funcs.push(func);
   };
 
-  
+  // addMemory = () => {
+
+  // }
 }

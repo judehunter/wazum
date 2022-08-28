@@ -20,6 +20,113 @@ exports[`tree creation add constant 1`] = `
 }
 `;
 
+exports[`tree creation addFunc 1`] = `
+[
+  {
+    "__nodeType": "func",
+    "body": {
+      "__nodeType": "add",
+      "dataType": "i32",
+      "left": {
+        "__nodeType": "localGet",
+        "dataType": "i32",
+        "name": "a",
+        "returnType": "i32",
+      },
+      "returnType": "i32",
+      "right": {
+        "__nodeType": "localGet",
+        "dataType": "i32",
+        "name": "b",
+        "returnType": "i32",
+      },
+    },
+    "dataType": "i32",
+    "exportName": null,
+    "locals": [],
+    "name": "add",
+    "params": [
+      [
+        "i32",
+        "a",
+      ],
+      [
+        "i32",
+        "b",
+      ],
+    ],
+  },
+  {
+    "__nodeType": "func",
+    "body": {
+      "__nodeType": "add",
+      "dataType": "i32",
+      "left": {
+        "__nodeType": "localGet",
+        "dataType": "i32",
+        "name": "a",
+        "returnType": "i32",
+      },
+      "returnType": "i32",
+      "right": {
+        "__nodeType": "localGet",
+        "dataType": "i32",
+        "name": "b",
+        "returnType": "i32",
+      },
+    },
+    "dataType": "i32",
+    "exportName": "add",
+    "locals": [],
+    "name": "add",
+    "params": [
+      [
+        "i32",
+        "a",
+      ],
+      [
+        "i32",
+        "b",
+      ],
+    ],
+  },
+  {
+    "__nodeType": "func",
+    "body": {
+      "__nodeType": "add",
+      "dataType": "i32",
+      "left": {
+        "__nodeType": "localGet",
+        "dataType": "i32",
+        "name": "a",
+        "returnType": "i32",
+      },
+      "returnType": "i32",
+      "right": {
+        "__nodeType": "localGet",
+        "dataType": "i32",
+        "name": "b",
+        "returnType": "i32",
+      },
+    },
+    "dataType": "i32",
+    "exportName": "addi32",
+    "locals": [],
+    "name": "add",
+    "params": [
+      [
+        "i32",
+        "a",
+      ],
+      [
+        "i32",
+        "b",
+      ],
+    ],
+  },
+]
+`;
+
 exports[`tree creation function 1`] = `
 {
   "__nodeType": "func",
@@ -81,6 +188,7 @@ exports[`tree creation function 1`] = `
     ],
   },
   "dataType": "i32",
+  "exportName": null,
   "locals": [
     [
       "i32",

@@ -1,4 +1,5 @@
 import { block, call, drop, func, i32, i64 } from '../methods';
+import { Module } from '../module';
 
 describe('tree creation', () => {
   test('add constant', () => {
@@ -32,6 +33,28 @@ describe('tree creation', () => {
     const x = call('add', { returnType: 'i32' }, [i32.local.get('a')]);
 
     expect(x).toMatchSnapshot();
+  });
+
+  const addFunc = () =>
+    func(
+      'add',
+      {
+        params: [
+          ['i32', 'a'],
+          ['i32', 'b'],
+        ],
+        locals: [],
+        returnType: 'i32',
+      },
+      i32.add(i32.local.get('a'), i32.local.get('b')),
+    );
+
+  test('addFunc', () => {
+    const m = new Module();
+    m.addFunc(addFunc());
+    m.addFunc(addFunc(), true);
+    m.addFunc(addFunc(), 'addi32');
+    expect(m.funcs).toMatchSnapshot();
   });
 });
 // block(null, [5, i64.local.get('ret')], 'i32');
