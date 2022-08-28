@@ -25,16 +25,66 @@ describe('compiler', () => {
   });
 
   test('localGet node', () => {
+    expect(compilers.localGet(w.local.get('f64', 'abc'))).toMatchSnapshot();
+  });
+
+  test('localSet node', () => {
     expect(
-      compilers.localGet(w.local.get('f64', 'abc')),
-    ).toMatchInlineSnapshot();
+      compilers.localSet(w.local.set('f64', 'abc', w.constant('f64', 10))),
+    ).toMatchSnapshot();
   });
 
   test('const node', () => {
-    expect(compilers.constant(w.constant('f32', 1.5))).toMatchInlineSnapshot();
+    expect(compilers.constant(w.constant('f32', 1.5))).toMatchSnapshot();
   });
 
   test('add node', () => {
-    expect(compilers.add(w.add('i32', w.constant('i32', 10), w.constant('i32', 5))));
+    expect(
+      compilers.add(w.add('i32', w.constant('i32', 10), w.constant('i32', 5))),
+    ).toMatchSnapshot();
+  });
+
+  test('sub node', () => {
+    expect(
+      compilers.sub(w.sub('i32', w.constant('i32', 10), w.constant('i32', 5))),
+    ).toMatchSnapshot();
+  });
+
+  test('mul node', () => {
+    expect(
+      compilers.mul(w.mul('i32', w.constant('i32', 10), w.constant('i32', 5))),
+    ).toMatchSnapshot();
+  });
+
+  test('div_s node', () => {
+    expect(
+      compilers.divSigned(
+        w.divSigned('i32', w.constant('i32', 10), w.constant('i32', 5)),
+      ),
+    ).toMatchSnapshot();
+  });
+
+  test('div_u node', () => {
+    expect(
+      compilers.divUnsigned(
+        w.divUnsigned('i32', w.constant('i32', 10), w.constant('i32', 5)),
+      ),
+    ).toMatchSnapshot();
+  });
+
+  test('rem_s node', () => {
+    expect(
+      compilers.remSigned(
+        w.remSigned('i32', w.constant('i32', 10), w.constant('i32', 5)),
+      ),
+    ).toMatchSnapshot();
+  });
+
+  test('rem_u node', () => {
+    expect(
+      compilers.remUnsigned(
+        w.remUnsigned('i32', w.constant('i32', 10), w.constant('i32', 5)),
+      ),
+    ).toMatchSnapshot();
   });
 });

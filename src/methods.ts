@@ -1,86 +1,13 @@
 import { NoInfer } from './utils';
 import {
   DataType,
+  IntegerDataType,
   NumericDataType,
   Variant,
   VariantExpr,
   VariantInstr,
   VariantStmt,
 } from './variants';
-
-const methods = {
-  local: <T extends DataType>(dataType: T) => ({
-    get: (name: string): Variant.LocalGet<T> => ({
-      __nodeType: 'localGet',
-      dataType,
-      name,
-      returnType: dataType,
-    }),
-    set: (name: string, value: VariantExpr): Variant.LocalSet => ({
-      __nodeType: 'localSet',
-      dataType,
-      name,
-      value,
-      returnType: 'none',
-    }),
-  }),
-  add:
-    <T extends DataType>(dataType: T) =>
-    (left: VariantExpr<T>, right: VariantExpr<T>): Variant.Add<T> => ({
-      __nodeType: 'add',
-      dataType,
-      left,
-      right,
-      returnType: dataType,
-    }),
-  // func:
-  //   <T extends DataType>(dataType: T) =>
-  //   (
-  //     name: string,
-  //     params: [type: DataType, name: string][],
-  //     locals: [type: DataType, name: string][],
-  //     body: VariantExpr,
-  //   ): Variant.Func<T> => ({
-  //     __nodeType: 'func',
-  //     name,
-  //     params,
-  //     locals,
-  //     body,
-  //     dataType,
-  //   }),
-  const:
-    <T extends DataType>(dataType: T) =>
-    (value: number): Variant.Const<T> => ({
-      __nodeType: 'const',
-      value,
-      dataType,
-      returnType: dataType,
-    }),
-};
-
-// export const i32 = {
-//   local: methods.local('i32'),
-//   add: methods.add('i32'),
-//   const: methods.const('i32'),
-//   // block: methods.block('i32'),
-//   // func: methods.func('i32'),
-// };
-// export const i64 = {
-//   local: methods.local('i64'),
-//   add: methods.add('i64'),
-//   const: methods.const('i64'),
-//   // block: methods.block('i64'),
-//   // func: methods.func('i64'),
-// };
-// export const f32 = {
-//   local: methods.local('f32'),
-//   add: methods.add('f64'),
-//   const: methods.const('f64'),
-// }
-// export const none = {
-//   // block: methods.block('none'),
-//   // func: methods.func('none'),
-// };
 
 export const local = {
   get: <T extends NumericDataType>(
@@ -111,6 +38,78 @@ export const add = <T extends NumericDataType>(
   right: VariantExpr<NoInfer<T>>,
 ): Variant.Add<T> => ({
   __nodeType: 'add',
+  dataType,
+  left,
+  right,
+  returnType: dataType,
+});
+
+export const sub = <T extends NumericDataType>(
+  dataType: T,
+  left: VariantExpr<NoInfer<T>>,
+  right: VariantExpr<NoInfer<T>>,
+): Variant.Sub<T> => ({
+  __nodeType: 'sub',
+  dataType,
+  left,
+  right,
+  returnType: dataType,
+});
+
+export const mul = <T extends NumericDataType>(
+  dataType: T,
+  left: VariantExpr<NoInfer<T>>,
+  right: VariantExpr<NoInfer<T>>,
+): Variant.Mul<T> => ({
+  __nodeType: 'mul',
+  dataType,
+  left,
+  right,
+  returnType: dataType,
+});
+
+export const divSigned = <T extends NumericDataType>(
+  dataType: T,
+  left: VariantExpr<NoInfer<T>>,
+  right: VariantExpr<NoInfer<T>>,
+): Variant.DivSigned<T> => ({
+  __nodeType: 'divSigned',
+  dataType,
+  left,
+  right,
+  returnType: dataType,
+});
+
+export const divUnsigned = <T extends NumericDataType>(
+  dataType: T,
+  left: VariantExpr<NoInfer<T>>,
+  right: VariantExpr<NoInfer<T>>,
+): Variant.DivUnsigned<T> => ({
+  __nodeType: 'divUnsigned',
+  dataType,
+  left,
+  right,
+  returnType: dataType,
+});
+
+export const remSigned = <T extends IntegerDataType>(
+  dataType: T,
+  left: VariantExpr<NoInfer<T>>,
+  right: VariantExpr<NoInfer<T>>,
+): Variant.RemSigned<T> => ({
+  __nodeType: 'remSigned',
+  dataType,
+  left,
+  right,
+  returnType: dataType,
+});
+
+export const remUnsigned = <T extends IntegerDataType>(
+  dataType: T,
+  left: VariantExpr<NoInfer<T>>,
+  right: VariantExpr<NoInfer<T>>,
+): Variant.RemUnsigned<T> => ({
+  __nodeType: 'remUnsigned',
   dataType,
   left,
   right,

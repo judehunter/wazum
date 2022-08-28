@@ -15,13 +15,103 @@ exports[`compiler add function (local.get, i32.add, exported func) 1`] = `
           
           
     (i32.add 
-    (i32.get a)
+    (local.get a)
    
-    (i32.get b)
+    (local.get b)
   )
   
         )
       
     )
+  "
+`;
+
+exports[`compiler add node 1`] = `
+"
+    (i32.add 
+    (i32.const 10)
+   
+    (i32.const 5)
+  )
+  "
+`;
+
+exports[`compiler const node 1`] = `
+"
+    (f32.const 1.5)
+  "
+`;
+
+exports[`compiler div_s node 1`] = `
+"
+    (i32.div_s 
+    (i32.const 10)
+   
+    (i32.const 5)
+  )
+  "
+`;
+
+exports[`compiler div_u node 1`] = `
+"
+    (i32.div_u 
+    (i32.const 10)
+   
+    (i32.const 5)
+  )
+  "
+`;
+
+exports[`compiler localGet node 1`] = `
+"
+    (local.get abc)
+  "
+`;
+
+exports[`compiler localSet node 1`] = `
+"
+    (local.set abc 
+    (f64.const 10)
+  )
+  "
+`;
+
+exports[`compiler mul node 1`] = `
+"
+    (i32.mul 
+    (i32.const 10)
+   
+    (i32.const 5)
+  )
+  "
+`;
+
+exports[`compiler rem_s node 1`] = `
+"
+    (i32.rem_s 
+    (i32.const 10)
+   
+    (i32.const 5)
+  )
+  "
+`;
+
+exports[`compiler rem_u node 1`] = `
+"
+    (i32.rem_u 
+    (i32.const 10)
+   
+    (i32.const 5)
+  )
+  "
+`;
+
+exports[`compiler sub node 1`] = `
+"
+    (i32.sub 
+    (i32.const 10)
+   
+    (i32.const 5)
+  )
   "
 `;
