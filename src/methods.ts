@@ -1,6 +1,12 @@
-import { Variant, VariantExpr, VariantInstr, VariantStmt } from './variants';
-
-export type DataType = 'i32' | 'i64' | 'f32' | 'f64' | 'none';
+import { NoInfer } from './utils';
+import {
+  DataType,
+  NumericDataType,
+  Variant,
+  VariantExpr,
+  VariantInstr,
+  VariantStmt,
+} from './variants';
 
 const methods = {
   local: <T extends DataType>(dataType: T) => ({
@@ -52,38 +58,83 @@ const methods = {
     }),
 };
 
-export const i32 = {
-  local: methods.local('i32'),
-  add: methods.add('i32'),
-  const: methods.const('i32'),
-  // block: methods.block('i32'),
-  // func: methods.func('i32'),
-};
-export const i64 = {
-  local: methods.local('i64'),
-  add: methods.add('i64'),
-  const: methods.const('i64'),
-  // block: methods.block('i64'),
-  // func: methods.func('i64'),
-};
-export const f32 = {
-  local: methods.local('f32'),
-  add: methods.add('f64'),
-  const: methods.const('f64'),
-}
-export const none = {
-  // block: methods.block('none'),
-  // func: methods.func('none'),
+// export const i32 = {
+//   local: methods.local('i32'),
+//   add: methods.add('i32'),
+//   const: methods.const('i32'),
+//   // block: methods.block('i32'),
+//   // func: methods.func('i32'),
+// };
+// export const i64 = {
+//   local: methods.local('i64'),
+//   add: methods.add('i64'),
+//   const: methods.const('i64'),
+//   // block: methods.block('i64'),
+//   // func: methods.func('i64'),
+// };
+// export const f32 = {
+//   local: methods.local('f32'),
+//   add: methods.add('f64'),
+//   const: methods.const('f64'),
+// }
+// export const none = {
+//   // block: methods.block('none'),
+//   // func: methods.func('none'),
+// };
+
+export const local = {
+  get: <T extends NumericDataType>(
+    dataType: T,
+    name: string,
+  ): Variant.LocalGet<T> => ({
+    __nodeType: 'localGet',
+    dataType,
+    name,
+    returnType: dataType,
+  }),
+  set: <T extends NumericDataType>(
+    dataType: T,
+    name: string,
+    value: VariantExpr<NoInfer<T>>,
+  ): Variant.LocalSet => ({
+    __nodeType: 'localSet',
+    dataType,
+    name,
+    value,
+    returnType: 'none',
+  }),
 };
 
-export const func = <T extends DataType, R extends T>(
+export const add = <T extends NumericDataType>(
+  dataType: T,
+  left: VariantExpr<NoInfer<T>>,
+  right: VariantExpr<NoInfer<T>>,
+): Variant.Add<T> => ({
+  __nodeType: 'add',
+  dataType,
+  left,
+  right,
+  returnType: dataType,
+});
+
+export const constant = <T extends NumericDataType>(
+  dataType: T,
+  value: number,
+): Variant.Const<T> => ({
+  __nodeType: 'const',
+  value,
+  dataType,
+  returnType: dataType,
+});
+
+export const func = <T extends DataType>(
   name: string,
   signature: {
     params: [type: DataType, name: string][];
     locals: [type: DataType, name: string][];
     returnType: T;
   },
-  body: VariantExpr<R>,
+  body: VariantExpr<NoInfer<T>>,
 ): Variant.Func<T> => ({
   __nodeType: 'func',
   name,
@@ -100,12 +151,12 @@ export const drop = (value: VariantExpr): Variant.Drop => ({
   returnType: 'none',
 });
 
-export const block = <T extends DataType, R extends T>(
+export const block = <T extends DataType>(
   name: string | null,
   returnType: T,
   value: [
     ...VariantStmt[],
-    Omit<VariantInstr, 'returnType'> & { returnType: R },
+    Omit<VariantInstr, 'returnType'> & { returnType: NoInfer<T> },
   ],
 ): Variant.Block<T> => ({
   __nodeType: 'block',

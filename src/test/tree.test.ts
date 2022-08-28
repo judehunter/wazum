@@ -1,15 +1,15 @@
-import { block, call, drop, func, i32, i64 } from '../methods';
+import * as w from '../methods';
 import { Module } from '../module';
 
 describe('tree creation', () => {
   test('add constant', () => {
-    const x = i32.add(i32.const(1), i32.const(2));
+    const x = w.add('i32', w.constant('i32', 1), w.constant('i32', 2));
 
     expect(x).toMatchSnapshot();
   });
 
   test('function', () => {
-    const f = func(
+    const f = w.func(
       'add',
       {
         params: [
@@ -19,10 +19,14 @@ describe('tree creation', () => {
         locals: [['i32', 'ret']],
         returnType: 'i32',
       },
-      block(null, 'i32', [
-        drop(i32.add(i32.local.get('a'), i32.local.get('b'))),
-        i32.local.set('ret', i32.add(i32.local.get('a'), i32.local.get('b'))),
-        i32.local.get('ret'),
+      w.block(null, 'i32', [
+        w.drop(w.add('i32', w.local.get('i32', 'a'), w.local.get('i32', 'b'))),
+        w.local.set(
+          'i32',
+          'ret',
+          w.add('i32', w.local.get('i32', 'a'), w.local.get('i32', 'b')),
+        ),
+        w.local.get('i32', 'ret'),
       ]),
     );
 
@@ -30,13 +34,13 @@ describe('tree creation', () => {
   });
 
   test('function call', () => {
-    const x = call('add', { returnType: 'i32' }, [i32.local.get('a')]);
+    const x = w.call('add', { returnType: 'i32' }, [w.local.get('i32', 'a')]);
 
     expect(x).toMatchSnapshot();
   });
 
   const addFunc = () =>
-    func(
+    w.func(
       'add',
       {
         params: [
@@ -46,7 +50,7 @@ describe('tree creation', () => {
         locals: [],
         returnType: 'i32',
       },
-      i32.add(i32.local.get('a'), i32.local.get('b')),
+      w.add('i32', w.local.get('i32', 'a'), w.local.get('i32', 'b')),
     );
 
   test('addFunc', () => {

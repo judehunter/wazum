@@ -1,5 +1,4 @@
-import { DataType } from './methods';
-import { Variant } from './variants';
+import { DataType, Variant } from './variants';
 
 export class Module {
   funcs: Variant.Func<DataType>[] = [];

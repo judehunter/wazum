@@ -1,4 +1,5 @@
-import { DataType } from './methods';
+export type NumericDataType = 'i32' | 'i64' | 'f32' | 'f64';
+export type DataType = NumericDataType | 'none';
 
 export namespace Variant {
   // export type Local = {

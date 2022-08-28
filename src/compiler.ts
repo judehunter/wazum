@@ -1,17 +1,22 @@
 import { Module } from './module';
-import { Variant, VariantInstr } from './variants';
+import { DataType, NumericDataType, Variant, VariantInstr } from './variants';
 import { match } from 'ts-pattern';
-import { DataType } from './methods';
 
-const localGet = (node: Variant.LocalGet<DataType>) => {
+const localGet = (node: Variant.LocalGet<NumericDataType>) => {
   return `
     (${node.dataType}.get ${node.name})
   `;
 };
 
-const add = (node: Variant.Add<DataType>) => {
+const add = (node: Variant.Add<NumericDataType>) => {
   return `
     (${node.dataType}.add ${instr(node.left)} ${instr(node.right)})
+  `;
+};
+
+const constant = (node: Variant.Const<NumericDataType>) => {
+  return `
+    (${node.dataType}.const ${node.value})
   `;
 };
 
@@ -19,9 +24,17 @@ const instr = (node: VariantInstr): string => {
   return match(node)
     .with({ __nodeType: 'add' }, add)
     .with({ __nodeType: 'localGet' }, localGet)
+    .with({ __nodeType: 'const' }, constant)
     .otherwise(() => {
       throw new Error(`Unexpected ${node.__nodeType} node`);
     });
+};
+
+export const compilers = {
+  instr,
+  localGet,
+  add,
+  constant,
 };
 
 export const compile = (m: Module) => {
