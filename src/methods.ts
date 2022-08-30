@@ -166,37 +166,28 @@ export const block = <T extends DataType>(
 
 export const call = <T extends DataType>(
   name: string,
-  signature: {
-    returnType: T;
-  },
+  returnType: T,
   args: VariantExpr[],
 ): Variant.Call<T> => ({
   __nodeType: 'call',
   name,
   args,
-  returnType: signature.returnType,
+  returnType,
 });
-// export const block = <Ret extends DataType>
-// type VarsIntoObject<Vars extends NodeLocal[]> = {[Prop in keyof Vars[number]]: }
 
-// type Test = VarsIntoObject<[{__nodeType: 'local', name: 'a'}]>
-
-// export class Func {
-//   /**
-//    * Creates a function without adding it to a module.
-//    *
-//    * @param opts.name The name of the function
-//    */
-//   constructor(name: string, params: NodeLocal[], body: () => any[]) {}
-// }
-
-// const foo = func('foo', [i32.local('a')], [i32.local('b')], () => {
-//   return [
-//     b.set((i32.local('a').get(), i32.const(7))),
-
-//     i32.add(b.get(), i32.const(42)),
-//   ];
-// });
-
-// const m = new Module();
-// m.addFunc(foo);
+export const callIndirect = <T extends DataType>(
+  tableName: string,
+  address: VariantExpr,
+  signature: {
+    params: [type: DataType, name?: string][];
+    returnType: T;
+  },
+  args: VariantExpr[],
+): Variant.CallIndirect<T> => ({
+  __nodeType: 'callIndirect',
+  tableName,
+  address,
+  params: signature.params,
+  args: args,
+  dataType: signature.returnType,
+});

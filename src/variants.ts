@@ -88,6 +88,14 @@ export namespace Variant {
     args: VariantExpr[];
     returnType: T;
   };
+  export type CallIndirect<T extends DataType> = {
+    __nodeType: 'callIndirect',
+    dataType: T,
+    params: [type: DataType, name?: string][];
+    args: VariantExpr[];
+    tableName: string;
+    address: VariantExpr;
+  }
   export type Drop = {
     __nodeType: 'drop';
     value: VariantExpr;

@@ -87,4 +87,23 @@ describe('compiler', () => {
       ),
     ).toMatchSnapshot();
   });
+
+  test('call node', () => {
+    expect(
+      compilers.call(w.call('abc', 'i32', [w.constant('i32', 10)])),
+    ).toMatchSnapshot();
+  });
+
+  test('call_indirect node', () => {
+    expect(
+      compilers.callIndirect(
+        w.callIndirect(
+          '0',
+          w.constant('i32', 0),
+          { params: addFunc().params, returnType: addFunc().dataType },
+          [w.constant('i32', 3), w.constant('i32', 4)],
+        ),
+      ),
+    ).toMatchSnapshot();
+  });
 });

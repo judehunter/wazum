@@ -34,7 +34,7 @@ describe('tree creation', () => {
   });
 
   test('function call', () => {
-    const x = w.call('add', { returnType: 'i32' }, [w.local.get('i32', 'a')]);
+    const x = w.call('add', 'i32', [w.local.get('i32', 'a')]);
 
     expect(x).toMatchSnapshot();
   });

@@ -10,13 +10,13 @@ import { match } from 'ts-pattern';
 
 const localGet = (node: Variant.LocalGet<NumericDataType>) => {
   return `
-    (local.get ${node.name})
+    (local.get $${node.name})
   `;
 };
 
 const localSet = (node: Variant.LocalSet) => {
   return `
-    (local.set ${node.name} ${instr(node.value)})
+    (local.set $${node.name} ${instr(node.value)})
   `;
 };
 
@@ -68,6 +68,26 @@ const constant = (node: Variant.Const<NumericDataType>) => {
   `;
 };
 
+const call = (node: Variant.Call<DataType>) => {
+  return `
+    (call $${node.name}
+      ${node.args.map((arg) => instr(arg)).join('\n')}
+    )
+  `;
+};
+
+const callIndirect = (node: Variant.CallIndirect<DataType>) => {
+  return `
+    (call_indirect
+      $${node.tableName}
+      ${node.params.map((param) => `(param ${param[0]})`).join(' ')}
+      (result ${node.dataType})
+      ${node.args.map((arg) => instr(arg)).join(' ')}
+      ${instr(node.address)}
+    )
+  `;
+};
+
 const instr = (node: VariantInstr): string => {
   return match(node)
     .with({ __nodeType: 'add' }, add)
@@ -79,6 +99,7 @@ const instr = (node: VariantInstr): string => {
     .with({ __nodeType: 'remUnsigned' }, remUnsigned)
     .with({ __nodeType: 'localGet' }, localGet)
     .with({ __nodeType: 'const' }, constant)
+    .with({ __nodeType: 'call' }, call)
     .otherwise(() => {
       throw new Error(`Unexpected ${node.__nodeType} node`);
     });
@@ -96,34 +117,71 @@ export const compilers = {
   remSigned,
   remUnsigned,
   constant,
+  call,
+  callIndirect
 };
 
 export const compile = (m: Module) => {
   return `
     (module
+      ${m.memories
+        .map(
+          (mem) =>
+            `
+              (memory $${mem.name} ${mem.initSize} ${mem.maxSize})
+              (export "${mem.name}" (memory $${mem.name}))
+            ` +
+            mem.segments
+              .map(
+                (seg) => `
+                  (data ${instr(seg.offset)} "${[...seg.data]
+                  .map((d) => '\\' + d.toString(16))
+                  .join('')}")
+                  `,
+              )
+              .join('\n'),
+        )
+        .join('\n')}
+
+      ${m.tables
+        .map(
+          (table) =>
+            `
+              (table $${table.name} ${table.initSize} ${table.maxSize} ${table.type})
+            ` +
+            table.segments.map(
+              (seg) => `
+                (elem (table $${table.name}) ${instr(
+                seg.offset,
+              )} ${seg.elems.join(' ')})
+              `,
+            ),
+        )
+        .join('\n')}
+
       ${m.funcs
         .filter((func) => func.exportName)
         .map(
           (func) => `
-        (export "${func.exportName}" (func $${func.name})
-      `,
+            (export "${func.exportName}" (func $${func.name})
+          `,
         )
         .join('\n')}
 
       ${m.funcs
         .map(
           (func) => `
-        (func $${func.name}
-          ${func.params
-            .map(([dt, name]) => `(param $${name} ${dt})`)
-            .join('\n')}
-          (result ${func.dataType})
-          ${func.locals
-            .map(([dt, name]) => `(local $${name} ${dt})`)
-            .join('\n')}
-          ${instr(func.body)}
-        )
-      `,
+            (func $${func.name}
+              ${func.params
+                .map(([dt, name]) => `(param $${name} ${dt})`)
+                .join(' ')}
+              (result ${func.dataType})
+              ${func.locals
+                .map(([dt, name]) => `(local $${name} ${dt})`)
+                .join(' ')}
+              ${instr(func.body)}
+            )
+          `,
         )
         .join('\n')}
     )

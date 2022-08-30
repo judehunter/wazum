@@ -4,24 +4,27 @@ exports[`compiler add function (local.get, i32.add, exported func) 1`] = `
 "
     (module
       
-        (export "add" (func $add)
+
       
 
       
-        (func $add
-          (param $a i32)
-(param $b i32)
-          (result i32)
+            (export "add" (func $add)
           
-          
+
+      
+            (func $add
+              (param $a i32) (param $b i32)
+              (result i32)
+              
+              
     (i32.add 
-    (local.get a)
+    (local.get $a)
    
-    (local.get b)
+    (local.get $b)
   )
   
-        )
-      
+            )
+          
     )
   "
 `;
@@ -33,6 +36,34 @@ exports[`compiler add node 1`] = `
    
     (i32.const 5)
   )
+  "
+`;
+
+exports[`compiler call node 1`] = `
+"
+    (call $abc
+      
+    (i32.const 10)
+  
+    )
+  "
+`;
+
+exports[`compiler call_indirect node 1`] = `
+"
+    (call_indirect
+      $0
+      (param i32) (param i32)
+      (result i32)
+      
+    (i32.const 3)
+   
+    (i32.const 4)
+  
+      
+    (i32.const 0)
+  
+    )
   "
 `;
 
@@ -64,13 +95,13 @@ exports[`compiler div_u node 1`] = `
 
 exports[`compiler localGet node 1`] = `
 "
-    (local.get abc)
+    (local.get $abc)
   "
 `;
 
 exports[`compiler localSet node 1`] = `
 "
-    (local.set abc 
+    (local.set $abc 
     (f64.const 10)
   )
   "
