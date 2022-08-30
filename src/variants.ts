@@ -89,13 +89,13 @@ export namespace Variant {
     returnType: T;
   };
   export type CallIndirect<T extends DataType> = {
-    __nodeType: 'callIndirect',
-    dataType: T,
+    __nodeType: 'callIndirect';
+    dataType: T;
     params: [type: DataType, name?: string][];
     args: VariantExpr[];
     tableName: string;
     address: VariantExpr;
-  }
+  };
   export type Drop = {
     __nodeType: 'drop';
     value: VariantExpr;
@@ -123,6 +123,7 @@ export type VariantExpr<T extends DataType = DataType> =
   | Variant.LocalGet<T>
   | Variant.Block<T>
   | Variant.Call<T>
+  | Variant.CallIndirect<T>
   | Variant.Const<T>
   | Variant.Add<T>
   | Variant.Sub<T>

@@ -100,6 +100,7 @@ const instr = (node: VariantInstr): string => {
     .with({ __nodeType: 'localGet' }, localGet)
     .with({ __nodeType: 'const' }, constant)
     .with({ __nodeType: 'call' }, call)
+    .with({ __nodeType: 'callIndirect' }, callIndirect)
     .otherwise(() => {
       throw new Error(`Unexpected ${node.__nodeType} node`);
     });
@@ -118,7 +119,7 @@ export const compilers = {
   remUnsigned,
   constant,
   call,
-  callIndirect
+  callIndirect,
 };
 
 export const compile = (m: Module) => {
