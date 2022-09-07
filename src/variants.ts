@@ -1,3 +1,5 @@
+import { Override } from "./utils";
+
 export type IntegerDataType = 'i32' | 'i64';
 export type FloatDataType = 'f32' | 'f64';
 export type NumericDataType = IntegerDataType | FloatDataType;
@@ -116,8 +118,35 @@ export namespace Variant {
     dataType: T;
     returnType: T;
   };
+  export type Load<T extends DataType> = {
+    __nodeType: 'load',
+    offset: number,
+    align: number,
+    base: VariantExpr<IntegerDataType>;
+    dataType: T;
+    returnType: T;
+  }
+  export type Load8SignExt<T extends DataType> = Override<Load<T>, {__nodeType: 'load8SignExt'}>;
+  export type Load16SignExt<T extends DataType> = Override<Load<T>, {__nodeType: 'load16SignExt'}>;
+  export type Load32SignExt<T extends DataType> = Override<Load<T>, {__nodeType: 'load32SignExt'}>;
+  export type Load8ZeroExt<T extends DataType> = Override<Load<T>, {__nodeType: 'load8ZeroExt'}>;
+  export type Load16ZeroExt<T extends DataType> = Override<Load<T>, {__nodeType: 'load16ZeroExt'}>;
+  export type Load32ZeroExt<T extends DataType> = Override<Load<T>, {__nodeType: 'load32ZeroExt'}>;
+  export type Store<T extends DataType> = {
+    __nodeType: 'store',
+    offset: number,
+    align: number,
+    base: VariantExpr<IntegerDataType>,
+    value: VariantExpr,
+  }
+  export type Store8SignExt<T extends DataType> = Override<Store<T>, {__nodeType: 'store8SignExt'}>;
+  export type Store16SignExt<T extends DataType> = Override<Store<T>, {__nodeType: 'store16SignExt'}>;
+  export type Store32SignExt<T extends DataType> = Override<Store<T>, {__nodeType: 'store32SignExt'}>;
+  export type Store8ZeroExt<T extends DataType> = Override<Store<T>, {__nodeType: 'store8ZeroExt'}>;
+  export type Store16ZeroExt<T extends DataType> = Override<Store<T>, {__nodeType: 'store16ZeroExt'}>;
+  export type Store32ZeroExt<T extends DataType> = Override<Store<T>, {__nodeType: 'store32ZeroExt'}>;
 }
-// type VariantReturn<V extends {returnType: DataType}> = V['returnType'];
+// type VariantRturn<V extends {returnType: DataType}> = V['returnType'];
 export type VariantStmt = Variant.Drop | Variant.LocalSet;
 export type VariantExpr<T extends DataType = DataType> =
   | Variant.LocalGet<T>
@@ -131,6 +160,19 @@ export type VariantExpr<T extends DataType = DataType> =
   | Variant.DivSigned<T>
   | Variant.DivUnsigned<T>
   | Variant.RemSigned<T>
-  | Variant.RemUnsigned<T>;
+  | Variant.RemUnsigned<T>
+  | Variant.Load<T>
+  | Variant.Load8SignExt<T>
+  | Variant.Load16SignExt<T>
+  | Variant.Load32SignExt<T>
+  | Variant.Load8ZeroExt<T>
+  | Variant.Load16ZeroExt<T>
+  | Variant.Load32ZeroExt<T>
+  | Variant.Store8SignExt<T>
+  | Variant.Store16SignExt<T>
+  | Variant.Store32SignExt<T>
+  | Variant.Store8ZeroExt<T>
+  | Variant.Store16ZeroExt<T>
+  | Variant.Store32ZeroExt<T>;
 export type VariantInstr = VariantStmt | VariantExpr;
 // export type VariantMisc = ;

@@ -191,3 +191,10 @@ export const callIndirect = <T extends DataType>(
   args: args,
   dataType: signature.returnType,
 });
+
+export const load = <T extends DataType>(
+  
+): Variant.Load<T> => ({
+  __nodeType: 'load',
+
+})
