@@ -1,8 +1,8 @@
 import {
   DataType,
+  Func,
   IntegerDataType,
   NumericDataType,
-  Variant,
   VariantExpr,
 } from './variants';
 
@@ -32,13 +32,13 @@ export type TableSegment = {
 };
 
 export class Module {
-  funcs: Variant.Func<DataType>[] = [];
+  funcs: Func<DataType>[] = [];
   memories: Memory[] = [];
   tables: Table[] = [];
 
   constructor() {}
 
-  addFunc = (func: Variant.Func<DataType>, exported?: boolean | string) => {
+  addFunc = (func: Func<DataType>, exported?: boolean | string) => {
     if (exported) {
       func.exportName = typeof exported === 'boolean' ? func.name : exported;
     }

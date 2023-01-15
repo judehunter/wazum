@@ -1,22 +1,37 @@
 {
   "name": "wazum",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A human-friendly compiler infrastructure library for WebAssembly",
-  "main": "dist/index.js",
   "repository": "https://github.com/judehunter/wazum",
-  "author": "judehunter <matisowagm@gmail.com>",
+  "author": "judehunter <jude@judehunter.dev>",
   "license": "Apache 2.0",
-  "module": "true",
+  "type": "module",
+  "source": "src/index.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "unpkg": "./dist/index.umd.js",
+  "exports": {
+    "types": "./dist/foo.d.ts"
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/**.*"
+  ],
   "scripts": {
-    "test": ""
+    "test": "jest",
+    "build": "microbundle"
   },
   "devDependencies": {
     "@types/jest": "^28.1.8",
     "jest": "^29.0.1",
+    "microbundle": "^0.15.1",
     "ts-jest": "^28.0.8",
-    "typescript": "^4.8.2"
+    "typescript": "^4.9.4"
   },
   "dependencies": {
     "ts-pattern": "^4.0.5"
+  },
+  "volta": {
+    "node": "19.4.0"
   }
 }

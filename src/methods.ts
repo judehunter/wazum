@@ -1,19 +1,31 @@
 import { NoInfer } from './utils';
 import {
+  Add,
+  Block,
+  Call,
+  CallIndirect,
+  Const,
   DataType,
+  DivSigned,
+  DivUnsigned,
+  Drop,
+  Func,
   IntegerDataType,
+  Load,
+  LocalGet,
+  LocalSet,
+  Mul,
   NumericDataType,
-  Variant,
+  RemSigned,
+  RemUnsigned,
+  Sub,
   VariantExpr,
   VariantInstr,
   VariantStmt,
 } from './variants';
 
 export const local = {
-  get: <T extends NumericDataType>(
-    dataType: T,
-    name: string,
-  ): Variant.LocalGet<T> => ({
+  get: <T extends NumericDataType>(dataType: T, name: string): LocalGet<T> => ({
     __nodeType: 'localGet',
     dataType,
     name,
@@ -23,7 +35,7 @@ export const local = {
     dataType: T,
     name: string,
     value: VariantExpr<NoInfer<T>>,
-  ): Variant.LocalSet => ({
+  ): LocalSet => ({
     __nodeType: 'localSet',
     dataType,
     name,
@@ -36,7 +48,7 @@ export const add = <T extends NumericDataType>(
   dataType: T,
   left: VariantExpr<NoInfer<T>>,
   right: VariantExpr<NoInfer<T>>,
-): Variant.Add<T> => ({
+): Add<T> => ({
   __nodeType: 'add',
   dataType,
   left,
@@ -48,7 +60,7 @@ export const sub = <T extends NumericDataType>(
   dataType: T,
   left: VariantExpr<NoInfer<T>>,
   right: VariantExpr<NoInfer<T>>,
-): Variant.Sub<T> => ({
+): Sub<T> => ({
   __nodeType: 'sub',
   dataType,
   left,
@@ -60,7 +72,7 @@ export const mul = <T extends NumericDataType>(
   dataType: T,
   left: VariantExpr<NoInfer<T>>,
   right: VariantExpr<NoInfer<T>>,
-): Variant.Mul<T> => ({
+): Mul<T> => ({
   __nodeType: 'mul',
   dataType,
   left,
@@ -72,7 +84,7 @@ export const divSigned = <T extends NumericDataType>(
   dataType: T,
   left: VariantExpr<NoInfer<T>>,
   right: VariantExpr<NoInfer<T>>,
-): Variant.DivSigned<T> => ({
+): DivSigned<T> => ({
   __nodeType: 'divSigned',
   dataType,
   left,
@@ -84,7 +96,7 @@ export const divUnsigned = <T extends NumericDataType>(
   dataType: T,
   left: VariantExpr<NoInfer<T>>,
   right: VariantExpr<NoInfer<T>>,
-): Variant.DivUnsigned<T> => ({
+): DivUnsigned<T> => ({
   __nodeType: 'divUnsigned',
   dataType,
   left,
@@ -96,7 +108,7 @@ export const remSigned = <T extends IntegerDataType>(
   dataType: T,
   left: VariantExpr<NoInfer<T>>,
   right: VariantExpr<NoInfer<T>>,
-): Variant.RemSigned<T> => ({
+): RemSigned<T> => ({
   __nodeType: 'remSigned',
   dataType,
   left,
@@ -108,7 +120,7 @@ export const remUnsigned = <T extends IntegerDataType>(
   dataType: T,
   left: VariantExpr<NoInfer<T>>,
   right: VariantExpr<NoInfer<T>>,
-): Variant.RemUnsigned<T> => ({
+): RemUnsigned<T> => ({
   __nodeType: 'remUnsigned',
   dataType,
   left,
@@ -119,7 +131,7 @@ export const remUnsigned = <T extends IntegerDataType>(
 export const constant = <T extends NumericDataType>(
   dataType: T,
   value: number,
-): Variant.Const<T> => ({
+): Const<T> => ({
   __nodeType: 'const',
   value,
   dataType,
@@ -134,7 +146,7 @@ export const func = <T extends DataType>(
     returnType: T;
   },
   body: VariantExpr<NoInfer<T>>,
-): Variant.Func<T> => ({
+): Func<T> => ({
   __nodeType: 'func',
   name,
   params: signature.params,
@@ -144,7 +156,7 @@ export const func = <T extends DataType>(
   exportName: null,
 });
 
-export const drop = (value: VariantExpr): Variant.Drop => ({
+export const drop = (value: VariantExpr): Drop => ({
   __nodeType: 'drop',
   value,
   returnType: 'none',
@@ -157,7 +169,7 @@ export const block = <T extends DataType>(
     ...VariantStmt[],
     Omit<VariantInstr, 'returnType'> & { returnType: NoInfer<T> },
   ],
-): Variant.Block<T> => ({
+): Block<T> => ({
   __nodeType: 'block',
   name,
   value,
@@ -168,7 +180,7 @@ export const call = <T extends DataType>(
   name: string,
   returnType: T,
   args: VariantExpr[],
-): Variant.Call<T> => ({
+): Call<T> => ({
   __nodeType: 'call',
   name,
   args,
@@ -183,7 +195,7 @@ export const callIndirect = <T extends DataType>(
     returnType: T;
   },
   args: VariantExpr[],
-): Variant.CallIndirect<T> => ({
+): CallIndirect<T> => ({
   __nodeType: 'callIndirect',
   tableName,
   address,
@@ -191,3 +203,7 @@ export const callIndirect = <T extends DataType>(
   args: args,
   dataType: signature.returnType,
 });
+
+// export const load = <T extends DataType>(): Load<T> => ({
+//   __nodeType: 'load',
+// });

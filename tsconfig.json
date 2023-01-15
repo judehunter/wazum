@@ -5,13 +5,16 @@
     "extendedDiagnostics": true,
     "skipLibCheck": false,
     "jsx": "preserve",
-    "lib": ["dom", "es2020"],
+    "lib": ["es2020"],
     "moduleResolution": "node",
     "strict": true,
     "strictNullChecks": true,
     "strictFunctionTypes": true,
     "strictPropertyInitialization": true,
-    "target": "es2020",
-    "outDir": "./build"
-  }
+    "outDir": "./build",
+    "module": "ESNext",
+    "target": "ESNext"
+  },
+  "include": ["src/index.ts", "src/**/*.ts"],
+  "exclude": ["src/test/**/*.*"]
 }

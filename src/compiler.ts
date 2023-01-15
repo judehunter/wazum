@@ -1,74 +1,87 @@
 import { Module } from './module';
 import {
+  Add,
+  Call,
+  CallIndirect,
+  Const,
   DataType,
+  DivSigned,
+  DivUnsigned,
   IntegerDataType,
+  LocalGet,
+  LocalSet,
+  Mul,
   NumericDataType,
-  Variant,
+  RemSigned,
+  RemUnsigned,
+  Sub,
   VariantInstr,
 } from './variants';
 import { match } from 'ts-pattern';
 
-const localGet = (node: Variant.LocalGet<NumericDataType>) => {
+// const trimdent = (str: string) => str.trim().replace(/^\s*(.*)$/gm, '$1');
+
+const localGet = (node: LocalGet<NumericDataType>) => {
   return `
     (local.get $${node.name})
   `;
 };
 
-const localSet = (node: Variant.LocalSet) => {
+const localSet = (node: LocalSet) => {
   return `
     (local.set $${node.name} ${instr(node.value)})
   `;
 };
 
-const add = (node: Variant.Add<NumericDataType>) => {
+const add = (node: Add<NumericDataType>) => {
   return `
     (${node.dataType}.add ${instr(node.left)} ${instr(node.right)})
   `;
 };
 
-const sub = (node: Variant.Sub<NumericDataType>) => {
+const sub = (node: Sub<NumericDataType>) => {
   return `
     (${node.dataType}.sub ${instr(node.left)} ${instr(node.right)})
   `;
 };
 
-const mul = (node: Variant.Mul<NumericDataType>) => {
+const mul = (node: Mul<NumericDataType>) => {
   return `
     (${node.dataType}.mul ${instr(node.left)} ${instr(node.right)})
   `;
 };
 
-const divSigned = (node: Variant.DivSigned<NumericDataType>) => {
+const divSigned = (node: DivSigned<NumericDataType>) => {
   return `
     (${node.dataType}.div_s ${instr(node.left)} ${instr(node.right)})
   `;
 };
 
-const divUnsigned = (node: Variant.DivUnsigned<NumericDataType>) => {
+const divUnsigned = (node: DivUnsigned<NumericDataType>) => {
   return `
     (${node.dataType}.div_u ${instr(node.left)} ${instr(node.right)})
   `;
 };
 
-const remSigned = (node: Variant.RemSigned<IntegerDataType>) => {
+const remSigned = (node: RemSigned<IntegerDataType>) => {
   return `
     (${node.dataType}.rem_s ${instr(node.left)} ${instr(node.right)})
   `;
 };
 
-const remUnsigned = (node: Variant.RemUnsigned<IntegerDataType>) => {
+const remUnsigned = (node: RemUnsigned<IntegerDataType>) => {
   return `
     (${node.dataType}.rem_u ${instr(node.left)} ${instr(node.right)})
   `;
 };
 
-const constant = (node: Variant.Const<NumericDataType>) => {
+const constant = (node: Const<NumericDataType>) => {
   return `
     (${node.dataType}.const ${node.value})
   `;
 };
 
-const call = (node: Variant.Call<DataType>) => {
+const call = (node: Call<DataType>) => {
   return `
     (call $${node.name}
       ${node.args.map((arg) => instr(arg)).join('\n')}
@@ -76,7 +89,7 @@ const call = (node: Variant.Call<DataType>) => {
   `;
 };
 
-const callIndirect = (node: Variant.CallIndirect<DataType>) => {
+const callIndirect = (node: CallIndirect<DataType>) => {
   return `
     (call_indirect
       $${node.tableName}

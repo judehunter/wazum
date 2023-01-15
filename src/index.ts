@@ -1,3 +1,1 @@
-import * as methods from './methods';
-
-export const w = { ...methods };
+export * as w from './reexport';
