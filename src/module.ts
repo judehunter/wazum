@@ -1,9 +1,10 @@
+import { compile } from './compiler';
 import {
   DataType,
   Func,
   IntegerDataType,
   NumericDataType,
-  VariantExpr,
+  Expr,
 } from './variants';
 
 export type Memory = {
@@ -15,7 +16,7 @@ export type Memory = {
 
 export type MemorySegment = {
   data: Uint8Array;
-  offset: VariantExpr<IntegerDataType>;
+  offset: Expr<IntegerDataType>;
 };
 
 export type Table = {
@@ -28,13 +29,21 @@ export type Table = {
 
 export type TableSegment = {
   elems: string[];
-  offset: VariantExpr<IntegerDataType>;
+  offset: Expr<IntegerDataType>;
+};
+
+export type Global = {
+  name: string;
+  dataType: DataType;
+  initVal: Expr;
+  mutable: boolean;
 };
 
 export class Module {
   funcs: Func<DataType>[] = [];
   memories: Memory[] = [];
   tables: Table[] = [];
+  globals: Global[] = [];
 
   constructor() {}
 
@@ -66,8 +75,19 @@ export class Module {
     initSize: number,
     maxSize: number,
     type: 'funcref',
-    segments: TableSegment[]
+    segments: TableSegment[],
   ) => {
-    this.tables.push({type, name, initSize, maxSize, segments});
-  }
+    this.tables.push({ type, name, initSize, maxSize, segments });
+  };
+
+  addGlobal = (
+    name: string,
+    dataType: DataType,
+    mutable: boolean,
+    initVal: Expr,
+  ) => {
+    this.globals.push({ name, dataType, initVal, mutable });
+  };
+
+  compile = () => compile(this);
 }

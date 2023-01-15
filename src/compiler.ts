@@ -1,25 +1,34 @@
 import { Module } from './module';
 import {
   Add,
+  Block,
   Call,
   CallIndirect,
   Const,
   DataType,
   DivSigned,
   DivUnsigned,
+  Drop,
   IntegerDataType,
+  Load,
   LocalGet,
   LocalSet,
+  LocalTee,
   Mul,
   NumericDataType,
   RemSigned,
   RemUnsigned,
+  Store,
   Sub,
-  VariantInstr,
+  Instr,
 } from './variants';
 import { match } from 'ts-pattern';
 
-// const trimdent = (str: string) => str.trim().replace(/^\s*(.*)$/gm, '$1');
+// const trimdent = (str: string) => {
+//   const trimmed = str.trim();
+//   const spaces =
+//   return trimmed.replace(/^\s*(.*)$/gm, ' '.repeat(spaces) + '$1');
+// };
 
 const localGet = (node: LocalGet<NumericDataType>) => {
   return `
@@ -30,6 +39,12 @@ const localGet = (node: LocalGet<NumericDataType>) => {
 const localSet = (node: LocalSet) => {
   return `
     (local.set $${node.name} ${instr(node.value)})
+  `;
+};
+
+const localTee = (node: LocalTee<NumericDataType>) => {
+  return `
+    (local.tee $${node.name} ${instr(node.value)})
   `;
 };
 
@@ -101,8 +116,50 @@ const callIndirect = (node: CallIndirect<DataType>) => {
   `;
 };
 
-const instr = (node: VariantInstr): string => {
+const block = (node: Block<DataType>) => {
+  return `
+    (block
+      ${node.name ? '$' + node.name : ''}
+      ${node.returnType !== 'none' ? `(result ${node.returnType})` : ''}
+      ${node.value.map((x) => instr(x as any)).join('\n')}
+    )
+  `;
+};
+
+const drop = (node: Drop) => {
+  return `
+    (drop
+      ${instr(node.value)}
+    )
+  `;
+};
+
+const store = (node: Store) => {
+  return `
+    (${node.dataType}.store
+      ${node.offset ? `offset=${node.offset}` : ''}
+      ${node.align ? `align=${node.align}` : ''}
+      ${instr(node.base)}
+      ${instr(node.value)}
+    )
+  `;
+};
+
+const load = (node: Load<DataType>) => {
+  return `
+    (${node.dataType}.store
+      ${node.offset ? `offset=${node.offset}` : ''}
+      ${node.align ? `align=${node.align}` : ''}
+      ${instr(node.base)}
+    )
+  `;
+};
+
+const instr = (node: Instr): string => {
   return match(node)
+    .with({ __nodeType: 'localGet' }, localGet)
+    .with({ __nodeType: 'localSet' }, localSet)
+    .with({ __nodeType: 'localTee' }, localTee)
     .with({ __nodeType: 'add' }, add)
     .with({ __nodeType: 'sub' }, sub)
     .with({ __nodeType: 'mul' }, mul)
@@ -110,32 +167,20 @@ const instr = (node: VariantInstr): string => {
     .with({ __nodeType: 'divUnsigned' }, divUnsigned)
     .with({ __nodeType: 'remSigned' }, remSigned)
     .with({ __nodeType: 'remUnsigned' }, remUnsigned)
-    .with({ __nodeType: 'localGet' }, localGet)
     .with({ __nodeType: 'const' }, constant)
     .with({ __nodeType: 'call' }, call)
     .with({ __nodeType: 'callIndirect' }, callIndirect)
+    .with({ __nodeType: 'block' }, block)
+    .with({ __nodeType: 'drop' }, drop)
+    .with({ __nodeType: 'store' }, store)
+    .with({ __nodeType: 'load' }, load)
     .otherwise(() => {
       throw new Error(`Unexpected ${node.__nodeType} node`);
     });
 };
 
-export const compilers = {
-  instr,
-  localGet,
-  localSet,
-  add,
-  sub,
-  mul,
-  divSigned,
-  divUnsigned,
-  remSigned,
-  remUnsigned,
-  constant,
-  call,
-  callIndirect,
-};
-
 export const compile = (m: Module) => {
+  // console.log(m.funcs);
   return `
     (module
       ${m.memories
@@ -173,6 +218,14 @@ export const compile = (m: Module) => {
         )
         .join('\n')}
 
+      ${m.globals.map(
+        (global) => `
+          (global $${global.name} (${global.mutable ? 'mut ' : ''}${
+          global.dataType
+        }) ${instr(global.initVal)})
+        `,
+      )}
+
       ${m.funcs
         .filter((func) => func.exportName)
         .map(
@@ -200,4 +253,24 @@ export const compile = (m: Module) => {
         .join('\n')}
     )
   `;
+};
+
+export const compilers = {
+  instr,
+  localGet,
+  localSet,
+  localTee,
+  add,
+  sub,
+  mul,
+  divSigned,
+  divUnsigned,
+  remSigned,
+  remUnsigned,
+  constant,
+  call,
+  callIndirect,
+  module: compile,
+  load,
+  store,
 };

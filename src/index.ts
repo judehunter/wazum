@@ -1,1 +1,2 @@
-export * as w from './reexport';
+import * as w from './reexport';
+export { w };

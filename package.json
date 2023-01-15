@@ -1,6 +1,6 @@
 {
   "name": "wazum",
-  "version": "0.0.1",
+  "version": "0.0.10",
   "description": "A human-friendly compiler infrastructure library for WebAssembly",
   "repository": "https://github.com/judehunter/wazum",
   "author": "judehunter <jude@judehunter.dev>",
@@ -11,7 +11,9 @@
   "module": "./dist/index.js",
   "unpkg": "./dist/index.umd.js",
   "exports": {
-    "types": "./dist/foo.d.ts"
+    "types": "./dist/index.d.ts",
+    "require": "./dist/index.js",
+    "default": "./dist/index.modern.mjs"
   },
   "types": "./dist/index.d.ts",
   "files": [
