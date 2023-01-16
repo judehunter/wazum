@@ -21,6 +21,10 @@ import {
   Store,
   Sub,
   Instr,
+  GlobalGet,
+  GlobalSet,
+  GlobalTee,
+  Expr,
 } from './variants';
 import { match } from 'ts-pattern';
 
@@ -30,229 +34,336 @@ import { match } from 'ts-pattern';
 //   return trimmed.replace(/^\s*(.*)$/gm, ' '.repeat(spaces) + '$1');
 // };
 
-const localGet = (node: LocalGet<NumericDataType>) => {
-  return `
-    (local.get $${node.name})
-  `;
+const compileSExpression = (
+  sExpr: {
+    fn: string;
+    inlineArgs?: (string | null)[];
+    blockArgs?: (string | null)[];
+  },
+  indent: number,
+) => {
+  let ret = space(indent) + `(${sExpr.fn}`;
+  const filteredInlineArgs = sExpr.inlineArgs?.filter((x) => x !== null);
+  const filteredBlockArgs = sExpr.blockArgs?.filter((x) => x !== null);
+  if (filteredInlineArgs?.length) {
+    ret += ` `;
+    ret += filteredInlineArgs.join(' ');
+  }
+  if (filteredBlockArgs?.length) {
+    ret += `\n`;
+    ret += filteredBlockArgs.join('\n');
+    ret += `\n` + space(indent) + `)`;
+  } else {
+    ret += `)`;
+  }
+  return ret;
 };
 
-const localSet = (node: LocalSet) => {
-  return `
-    (local.set $${node.name} ${instr(node.value)})
-  `;
+const space = (indent: number) => ' '.repeat(indent);
+
+const localGet = (node: LocalGet<DataType>, indent = 0) => {
+  return compileSExpression(
+    { fn: 'local.get', inlineArgs: [`$${node.name}`] },
+    indent,
+  );
 };
 
-const localTee = (node: LocalTee<NumericDataType>) => {
-  return `
-    (local.tee $${node.name} ${instr(node.value)})
-  `;
+const localSet = (node: LocalSet, indent = 0) => {
+  return compileSExpression(
+    {
+      fn: 'local.set',
+      inlineArgs: [`$${node.name}`],
+      blockArgs: [instr(node.value, indent + 1)],
+    },
+    indent,
+  );
 };
 
-const add = (node: Add<NumericDataType>) => {
-  return `
-    (${node.dataType}.add ${instr(node.left)} ${instr(node.right)})
-  `;
+const localTee = (node: LocalTee<DataType>, indent = 0) => {
+  return compileSExpression(
+    {
+      fn: 'local.tee',
+      inlineArgs: [`$${node.name}`],
+      blockArgs: [instr(node.value, indent + 1)],
+    },
+    indent,
+  );
 };
 
-const sub = (node: Sub<NumericDataType>) => {
-  return `
-    (${node.dataType}.sub ${instr(node.left)} ${instr(node.right)})
-  `;
+const globalGet = (node: GlobalGet<DataType>, indent = 0) => {
+  return compileSExpression(
+    { fn: 'global.get', inlineArgs: [`$${node.name}`] },
+    indent,
+  );
 };
 
-const mul = (node: Mul<NumericDataType>) => {
-  return `
-    (${node.dataType}.mul ${instr(node.left)} ${instr(node.right)})
-  `;
+const globalSet = (node: GlobalSet, indent = 0) => {
+  return compileSExpression(
+    {
+      fn: 'global.set',
+      inlineArgs: [`$${node.name}`],
+      blockArgs: [instr(node.value, indent + 1)],
+    },
+    indent,
+  );
 };
 
-const divSigned = (node: DivSigned<NumericDataType>) => {
-  return `
-    (${node.dataType}.div_s ${instr(node.left)} ${instr(node.right)})
-  `;
+const globalTee = (node: GlobalTee<DataType>, indent = 0) => {
+  return compileSExpression(
+    {
+      fn: 'global.tee',
+      inlineArgs: [`$${node.name}`],
+      blockArgs: [instr(node.value, indent + 1)],
+    },
+    indent,
+  );
 };
 
-const divUnsigned = (node: DivUnsigned<NumericDataType>) => {
-  return `
-    (${node.dataType}.div_u ${instr(node.left)} ${instr(node.right)})
-  `;
+const makeBinaryParser =
+  <T extends { dataType: DataType; left: Expr; right: Expr }>(op: string) =>
+  (node: T, indent = 0) => {
+    return compileSExpression(
+      {
+        fn: `${node.dataType}.${op}`,
+        blockArgs: [
+          instr(node.left, indent + 1),
+          instr(node.right, indent + 1),
+        ],
+      },
+      indent,
+    );
+  };
+
+const add = makeBinaryParser<Add<DataType>>('add');
+const sub = makeBinaryParser<Sub<DataType>>('sub');
+const mul = makeBinaryParser<Mul<DataType>>('mul');
+const divSigned = makeBinaryParser<DivSigned<DataType>>('div_s');
+const divUnsigned = makeBinaryParser<DivUnsigned<DataType>>('div_u');
+const remSigned = makeBinaryParser<RemSigned<DataType>>('rem_s');
+const remUnsigned = makeBinaryParser<RemUnsigned<DataType>>('rem_u');
+
+const constant = (node: Const<DataType>, indent = 0) => {
+  return compileSExpression(
+    { fn: `${node.dataType}.const`, inlineArgs: [`${node.value}`] },
+    indent,
+  );
 };
 
-const remSigned = (node: RemSigned<IntegerDataType>) => {
-  return `
-    (${node.dataType}.rem_s ${instr(node.left)} ${instr(node.right)})
-  `;
+const call = (node: Call<DataType>, indent = 0) => {
+  return compileSExpression(
+    {
+      fn: 'call',
+      inlineArgs: [`$${node.name}`],
+      blockArgs: node.args.map((arg) => instr(arg, indent + 1)),
+    },
+    indent,
+  );
 };
 
-const remUnsigned = (node: RemUnsigned<IntegerDataType>) => {
-  return `
-    (${node.dataType}.rem_u ${instr(node.left)} ${instr(node.right)})
-  `;
+const callIndirect = (node: CallIndirect<DataType>, indent = 0) => {
+  return compileSExpression(
+    {
+      fn: 'call_indirect',
+      blockArgs: [
+        space(indent + 1) + `$${node.tableName}`,
+        ...node.params.map(
+          (param) => space(indent + 1) + `(param ${param[0]})`,
+        ),
+        space(indent + 1) + `(result ${node.dataType})`,
+        ...node.args.map((arg) => instr(arg, indent + 1)),
+        instr(node.address, indent + 1),
+      ],
+    },
+    indent,
+  );
 };
 
-const constant = (node: Const<NumericDataType>) => {
-  return `
-    (${node.dataType}.const ${node.value})
-  `;
+const block = (node: Block<DataType>, indent = 0) => {
+  return compileSExpression(
+    {
+      fn: 'block',
+      blockArgs: [
+        node.name ? space(indent + 1) + `$${node.name}` : null,
+        node.returnType !== 'none'
+          ? space(indent + 1) + `(result ${node.returnType})`
+          : null,
+        ...node.value.map((x) => instr(x as any, indent + 1)),
+      ],
+    },
+    indent,
+  );
 };
 
-const call = (node: Call<DataType>) => {
-  return `
-    (call $${node.name}
-      ${node.args.map((arg) => instr(arg)).join('\n')}
-    )
-  `;
+const drop = (node: Drop, indent = 0) => {
+  return compileSExpression(
+    { fn: 'drop', blockArgs: [instr(node.value, indent + 1)] },
+    indent,
+  );
 };
 
-const callIndirect = (node: CallIndirect<DataType>) => {
-  return `
-    (call_indirect
-      $${node.tableName}
-      ${node.params.map((param) => `(param ${param[0]})`).join(' ')}
-      (result ${node.dataType})
-      ${node.args.map((arg) => instr(arg)).join(' ')}
-      ${instr(node.address)}
-    )
-  `;
+const store = (node: Store, indent = 0) => {
+  return compileSExpression(
+    {
+      fn: `${node.dataType}.store`,
+      blockArgs: [
+        node.offset ? space(indent + 1) + `offset=${node.offset}` : null,
+        node.align ? space(indent + 1) + `align=${node.align}` : null,
+        instr(node.base, indent + 1),
+        instr(node.value, indent + 1),
+      ],
+    },
+    indent,
+  );
 };
 
-const block = (node: Block<DataType>) => {
-  return `
-    (block
-      ${node.name ? '$' + node.name : ''}
-      ${node.returnType !== 'none' ? `(result ${node.returnType})` : ''}
-      ${node.value.map((x) => instr(x as any)).join('\n')}
-    )
-  `;
+const load = (node: Load<DataType>, indent = 0) => {
+  return compileSExpression(
+    {
+      fn: `${node.dataType}.load`,
+      blockArgs: [
+        node.offset ? space(indent + 1) + `offset=${node.offset}` : null,
+        node.align ? space(indent + 1) + `align=${node.align}` : null,
+        instr(node.base, indent + 1),
+      ],
+    },
+    indent,
+  );
 };
 
-const drop = (node: Drop) => {
-  return `
-    (drop
-      ${instr(node.value)}
-    )
-  `;
-};
-
-const store = (node: Store) => {
-  return `
-    (${node.dataType}.store
-      ${node.offset ? `offset=${node.offset}` : ''}
-      ${node.align ? `align=${node.align}` : ''}
-      ${instr(node.base)}
-      ${instr(node.value)}
-    )
-  `;
-};
-
-const load = (node: Load<DataType>) => {
-  return `
-    (${node.dataType}.store
-      ${node.offset ? `offset=${node.offset}` : ''}
-      ${node.align ? `align=${node.align}` : ''}
-      ${instr(node.base)}
-    )
-  `;
-};
-
-const instr = (node: Instr): string => {
+const instr = (node: Instr, indent = 0): string => {
   return match(node)
-    .with({ __nodeType: 'localGet' }, localGet)
-    .with({ __nodeType: 'localSet' }, localSet)
-    .with({ __nodeType: 'localTee' }, localTee)
-    .with({ __nodeType: 'add' }, add)
-    .with({ __nodeType: 'sub' }, sub)
-    .with({ __nodeType: 'mul' }, mul)
-    .with({ __nodeType: 'divSigned' }, divSigned)
-    .with({ __nodeType: 'divUnsigned' }, divUnsigned)
-    .with({ __nodeType: 'remSigned' }, remSigned)
-    .with({ __nodeType: 'remUnsigned' }, remUnsigned)
-    .with({ __nodeType: 'const' }, constant)
-    .with({ __nodeType: 'call' }, call)
-    .with({ __nodeType: 'callIndirect' }, callIndirect)
-    .with({ __nodeType: 'block' }, block)
-    .with({ __nodeType: 'drop' }, drop)
-    .with({ __nodeType: 'store' }, store)
-    .with({ __nodeType: 'load' }, load)
+    .with({ __nodeType: 'localGet' }, (x) => localGet(x, indent))
+    .with({ __nodeType: 'localSet' }, (x) => localSet(x, indent))
+    .with({ __nodeType: 'localTee' }, (x) => localTee(x, indent))
+    .with({ __nodeType: 'add' }, (x) => add(x, indent))
+    .with({ __nodeType: 'sub' }, (x) => sub(x, indent))
+    .with({ __nodeType: 'mul' }, (x) => mul(x, indent))
+    .with({ __nodeType: 'divSigned' }, (x) => divSigned(x, indent))
+    .with({ __nodeType: 'divUnsigned' }, (x) => divUnsigned(x, indent))
+    .with({ __nodeType: 'remSigned' }, (x) => remSigned(x, indent))
+    .with({ __nodeType: 'remUnsigned' }, (x) => remUnsigned(x, indent))
+    .with({ __nodeType: 'const' }, (x) => constant(x, indent))
+    .with({ __nodeType: 'call' }, (x) => call(x, indent))
+    .with({ __nodeType: 'callIndirect' }, (x) => callIndirect(x, indent))
+    .with({ __nodeType: 'block' }, (x) => block(x, indent))
+    .with({ __nodeType: 'drop' }, (x) => drop(x, indent))
+    .with({ __nodeType: 'store' }, (x) => store(x, indent))
+    .with({ __nodeType: 'load' }, (x) => load(x, indent))
     .otherwise(() => {
       throw new Error(`Unexpected ${node.__nodeType} node`);
     });
 };
 
 export const compile = (m: Module) => {
-  // console.log(m.funcs);
-  return `
-    (module
-      ${m.memories
-        .map(
-          (mem) =>
-            `
-              (memory $${mem.name} ${mem.initSize} ${mem.maxSize})
-              (export "${mem.name}" (memory $${mem.name}))
-            ` +
-            mem.segments
-              .map(
-                (seg) => `
-                  (data ${instr(seg.offset)} "${[...seg.data]
-                  .map((d) => '\\' + d.toString(16))
-                  .join('')}")
-                  `,
-              )
-              .join('\n'),
-        )
-        .join('\n')}
-
-      ${m.tables
-        .map(
-          (table) =>
-            `
-              (table $${table.name} ${table.initSize} ${table.maxSize} ${table.type})
-            ` +
-            table.segments.map(
-              (seg) => `
-                (elem (table $${table.name}) ${instr(
-                seg.offset,
-              )} ${seg.elems.join(' ')})
-              `,
+  return compileSExpression(
+    {
+      fn: 'module',
+      blockArgs: [
+        ...m.memories.flatMap((mem) => [
+          compileSExpression(
+            {
+              fn: 'memory',
+              inlineArgs: [`$${mem.name}`, `${mem.initSize}`, `${mem.maxSize}`],
+            },
+            1,
+          ),
+          compileSExpression(
+            {
+              fn: 'export',
+              inlineArgs: [`"${mem.name}"`, `(memory $${mem.name})`],
+            },
+            1,
+          ),
+          ...mem.segments.flatMap((seg) =>
+            compileSExpression(
+              {
+                fn: 'data',
+                blockArgs: [
+                  instr(seg.offset, 2),
+                  space(2) +
+                    `"${[...seg.data]
+                      .map((d) => '\\' + d.toString(16))
+                      .join('')}"`,
+                ],
+              },
+              1,
             ),
-        )
-        .join('\n')}
-
-      ${m.globals.map(
-        (global) => `
-          (global $${global.name} (${global.mutable ? 'mut ' : ''}${
-          global.dataType
-        }) ${instr(global.initVal)})
-        `,
-      )}
-
-      ${m.funcs
-        .filter((func) => func.exportName)
-        .map(
-          (func) => `
-            (export "${func.exportName}" (func $${func.name})
-          `,
-        )
-        .join('\n')}
-
-      ${m.funcs
-        .map(
-          (func) => `
-            (func $${func.name}
-              ${func.params
-                .map(([dt, name]) => `(param $${name} ${dt})`)
-                .join(' ')}
-              (result ${func.dataType})
-              ${func.locals
-                .map(([dt, name]) => `(local $${name} ${dt})`)
-                .join(' ')}
-              ${instr(func.body)}
-            )
-          `,
-        )
-        .join('\n')}
-    )
-  `;
+          ),
+        ]),
+        ...m.tables.flatMap((table) => [
+          compileSExpression(
+            {
+              fn: 'table',
+              inlineArgs: [
+                `$${table.name}`,
+                `${table.initSize}`,
+                `${table.maxSize}`,
+                `${table.type}`,
+              ],
+            },
+            1,
+          ),
+          ...table.segments.flatMap((seg) =>
+            compileSExpression(
+              {
+                fn: 'elem',
+                blockArgs: [
+                  space(2) + `(table $${table.name})`,
+                  instr(seg.offset, 2),
+                  seg.elems.join(' ') || null,
+                ],
+              },
+              1,
+            ),
+          ),
+        ]),
+        ...m.globals.map((global) =>
+          compileSExpression(
+            {
+              fn: 'global',
+              inlineArgs: [
+                `$${global.name}`,
+                `(${global.mutable ? 'mut ' : ''}${global.dataType})`,
+              ],
+              blockArgs: [instr(global.initVal, 2)],
+            },
+            1,
+          ),
+        ),
+        ...m.funcs
+          .filter((func) => func.exportName)
+          .map((func) =>
+            compileSExpression(
+              {
+                fn: 'export',
+                inlineArgs: [`"${func.exportName}"`, ` (func $${func.name}`],
+              },
+              1,
+            ),
+          ),
+        ...m.funcs.map((func) =>
+          compileSExpression(
+            {
+              fn: 'func',
+              inlineArgs: [`$${func.name}`],
+              blockArgs: [
+                ...func.params.map(
+                  ([dt, name]) => space(2) + `(param $${name} ${dt})`,
+                ),
+                space(2) + `(result ${func.dataType})`,
+                ...func.locals.map(
+                  ([dt, name]) => space(2) + `(local $${name} ${dt})`,
+                ),
+                instr(func.body, 2),
+              ],
+            },
+            1,
+          ),
+        ),
+      ],
+    },
+    0,
+  );
 };
 
 export const compilers = {

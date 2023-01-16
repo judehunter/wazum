@@ -25,6 +25,26 @@ export type LocalTee<T extends DataType> = {
   value: Expr;
   returnType: T;
 };
+export type GlobalGet<T extends DataType> = {
+  __nodeType: 'globalGet';
+  dataType: T;
+  name: string;
+  returnType: T;
+};
+export type GlobalSet = {
+  __nodeType: 'globalSet';
+  dataType: DataType;
+  name: string;
+  value: Expr;
+  returnType: 'none';
+};
+export type GlobalTee<T extends DataType> = {
+  __nodeType: 'globalTee';
+  dataType: DataType;
+  name: string;
+  value: Expr;
+  returnType: T;
+};
 export type Add<T extends DataType> = {
   __nodeType: 'add';
   dataType: T;
