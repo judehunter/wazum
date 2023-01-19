@@ -235,6 +235,9 @@ const instr = (node: Instr, indent = 0): string => {
     .with({ __nodeType: 'localGet' }, (x) => localGet(x, indent))
     .with({ __nodeType: 'localSet' }, (x) => localSet(x, indent))
     .with({ __nodeType: 'localTee' }, (x) => localTee(x, indent))
+    .with({ __nodeType: 'globalGet' }, (x) => globalGet(x, indent))
+    .with({ __nodeType: 'globalSet' }, (x) => globalSet(x, indent))
+    .with({ __nodeType: 'globalTee' }, (x) => globalTee(x, indent))
     .with({ __nodeType: 'add' }, (x) => add(x, indent))
     .with({ __nodeType: 'sub' }, (x) => sub(x, indent))
     .with({ __nodeType: 'mul' }, (x) => mul(x, indent))
@@ -308,9 +311,9 @@ export const compile = (m: Module) => {
               {
                 fn: 'elem',
                 blockArgs: [
-                  space(2) + `(table $${table.name})`,
+                  // space(2) + `(table $${table.name})`,
                   instr(seg.offset, 2),
-                  seg.elems.join(' ') || null,
+                  space(2) + seg.elems.map((x) => `$${x}`).join(' '),
                 ],
               },
               1,
@@ -336,7 +339,7 @@ export const compile = (m: Module) => {
             compileSExpression(
               {
                 fn: 'export',
-                inlineArgs: [`"${func.exportName}"`, ` (func $${func.name}`],
+                inlineArgs: [`"${func.exportName}"`, `(func $${func.name})`],
               },
               1,
             ),
@@ -350,7 +353,9 @@ export const compile = (m: Module) => {
                 ...func.params.map(
                   ([dt, name]) => space(2) + `(param $${name} ${dt})`,
                 ),
-                space(2) + `(result ${func.dataType})`,
+                func.dataType !== 'none'
+                  ? space(2) + `(result ${func.dataType})`
+                  : null,
                 ...func.locals.map(
                   ([dt, name]) => space(2) + `(local $${name} ${dt})`,
                 ),
@@ -384,4 +389,7 @@ export const compilers = {
   module: compile,
   load,
   store,
+  globalGet,
+  globalSet,
+  globalTee,
 };

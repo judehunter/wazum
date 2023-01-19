@@ -186,6 +186,7 @@ export type Store32ZeroExt = Replace<Store, { __nodeType: 'store32ZeroExt' }>;
 export type Stmt =
   | Drop
   | LocalSet
+  | GlobalSet
   | Store
   | Store8SignExt
   | Store16SignExt
@@ -196,6 +197,8 @@ export type Stmt =
 export type Expr<T extends DataType = DataType> =
   | LocalGet<T>
   | LocalTee<T>
+  | GlobalGet<T>
+  | GlobalTee<T>
   | Block<T>
   | Call<T>
   | CallIndirect<T>

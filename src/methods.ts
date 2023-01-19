@@ -24,6 +24,9 @@ import {
   Expr,
   Instr,
   Stmt,
+  GlobalGet,
+  GlobalSet,
+  GlobalTee,
 } from './variants';
 
 export const local = {
@@ -50,6 +53,40 @@ export const local = {
     value: Expr<NoInfer<T>>,
   ): LocalTee<T> => ({
     __nodeType: 'localTee',
+    dataType,
+    name,
+    returnType: dataType,
+    value,
+  }),
+};
+
+export const global = {
+  get: <T extends NumericDataType>(
+    dataType: T,
+    name: string,
+  ): GlobalGet<T> => ({
+    __nodeType: 'globalGet',
+    dataType,
+    name,
+    returnType: dataType,
+  }),
+  set: <T extends NumericDataType>(
+    dataType: T,
+    name: string,
+    value: Expr<NoInfer<T>>,
+  ): GlobalSet => ({
+    __nodeType: 'globalSet',
+    dataType,
+    name,
+    value,
+    returnType: 'none',
+  }),
+  tee: <T extends NumericDataType>(
+    dataType: T,
+    name: string,
+    value: Expr<NoInfer<T>>,
+  ): GlobalTee<T> => ({
+    __nodeType: 'globalTee',
     dataType,
     name,
     returnType: dataType,
