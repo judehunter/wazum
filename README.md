@@ -49,5 +49,5 @@ You'll find all the methods and types under:
 import { w } from 'wazum';
 w. // let IntelliSense guide you!
 ```
-
-For more information, check out the [**docs**](https://judehunter.dev/wazum/docs).
+<!-- 
+For more information, check out the [**docs**](https://judehunter.dev/wazum/docs). -->

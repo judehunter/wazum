@@ -1,6 +1,6 @@
 {
   "name": "wazum",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "A human-friendly compiler infrastructure library for WebAssembly",
   "repository": "https://github.com/judehunter/wazum",
   "author": "judehunter <jude@judehunter.dev>",

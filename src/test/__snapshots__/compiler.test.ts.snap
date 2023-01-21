@@ -2,7 +2,7 @@
 
 exports[`compiler add function (local.get, i32.add, exported func) 1`] = `
 "(module
- (export "add"  (func $add)
+ (export "add" (func $add))
  (func $add
   (param $a i32)
   (param $b i32)

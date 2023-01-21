@@ -28,7 +28,7 @@ import {
   Loop,
   BranchIf,
   Branch,
-  Eqz,
+  EqualZero,
   Load8SignExt,
   Load8ZeroExt,
   Load16SignExt,
@@ -37,6 +37,16 @@ import {
   Store8,
   Store16,
   Store32,
+  Equal,
+  NotEqual,
+  GreaterThanSigned,
+  GreaterThanUnsigned,
+  LessThanSigned,
+  LessThanUnsigned,
+  GreaterEqualSigned,
+  GreaterEqualUnsigned,
+  LessEqualSigned,
+  LessEqualUnsigned,
 } from './nodes';
 
 /**
@@ -48,7 +58,7 @@ export const local = {
    * The local has to be defined in the function.
    *
    * When compiled, results in
-   * ```wat
+   * ```wasm
    * (local.get $[name])
    * ```
    * @param dataType the data type of the local.
@@ -65,12 +75,12 @@ export const local = {
    * The local has to be defined in the function.
    *
    * When compiled, results in
-   * ```wat
+   * ```wasm
    * (local.set $[name] [value])
    * ```
    * @param dataType the data type of the local.
    * @param name the name of the local (without the prefixing dollar sign).
-   * @param value the value `Expr` node.
+   * @param value the value `Instr` node.
    */
   set: <T extends NumericDataType>(
     dataType: T,
@@ -88,12 +98,12 @@ export const local = {
    * The local has to be defined in the function.
    *
    * When compiled, results in
-   * ```wat
+   * ```wasm
    * (local.tee $[name] [value])
    * ```
    * @param dataType the data type of the local.
    * @param name the name of the local (without the prefixing dollar sign).
-   * @param value the value `Expr` node.
+   * @param value the value `Instr` node.
    */
   tee: <T extends NumericDataType>(
     dataType: T,
@@ -108,13 +118,16 @@ export const local = {
   }),
 };
 
+/**
+ * Methods for the `global.get`, `global.set`, and `global.tee` instructions.
+ */
 export const global = {
   /**
    * Creates a node for the `global.get` instruction.
    * The global has to be defined in the module.
    *
    * When compiled, results in
-   * ```wat
+   * ```wasm
    * (global.get $[name])
    * ```
    * @param dataType the data type of the global.
@@ -134,12 +147,12 @@ export const global = {
    * The global has to be defined in the module.
    *
    * When compiled, results in
-   * ```wat
+   * ```wasm
    * (global.set $[name] [value])
    * ```
    * @param dataType the data type of the global.
    * @param name the name of the global (without the prefixing dollar sign).
-   * @param value the value `Expr` node.
+   * @param value the value `Instr` node.
    */
   set: <T extends NumericDataType>(
     dataType: T,
@@ -157,12 +170,12 @@ export const global = {
    * The global has to be defined in the module.
    *
    * When compiled, results in
-   * ```wat
+   * ```wasm
    * (global.tee $[name] [value])
    * ```
    * @param dataType the data type of the global.
    * @param name the name of the global (without the prefixing dollar sign).
-   * @param value the value `Expr` node.
+   * @param value the value `Instr` node.
    */
   tee: <T extends NumericDataType>(
     dataType: T,
@@ -181,12 +194,12 @@ export const global = {
  * Creates a node for the `add` instruction.
  *
  * When compiled, results in
- * ```wat
+ * ```wasm
  * ([dataType].add [left] [right])
  * ```
  * @param dataType the data type of both operands and of the result type.
- * @param left the value `Expr` node of the left operand.
- * @param right the value `Expr` node of the right operand.
+ * @param left the value `Instr` node of the left operand.
+ * @param right the value `Instr` node of the right operand.
  */
 export const add = <T extends NumericDataType>(
   dataType: T,
@@ -204,12 +217,12 @@ export const add = <T extends NumericDataType>(
  * Creates a node for the `sub` instruction.
  *
  * When compiled, results in
- * ```wat
+ * ```wasm
  * ([dataType].sub [left] [right])
  * ```
  * @param dataType the data type of both operands and of the result type.
- * @param left the value `Expr` node of the left operand.
- * @param right the value `Expr` node of the right operand.
+ * @param left the value `Instr` node of the left operand.
+ * @param right the value `Instr` node of the right operand.
  */
 export const sub = <T extends NumericDataType>(
   dataType: T,
@@ -227,12 +240,12 @@ export const sub = <T extends NumericDataType>(
  * Creates a node for the `mul` instruction.
  *
  * When compiled, results in
- * ```wat
+ * ```wasm
  * ([dataType].mul [left] [right])
  * ```
  * @param dataType the data type of both operands and of the result type.
- * @param left the value `Expr` node of the left operand.
- * @param right the value `Expr` node of the right operand.
+ * @param left the value `Instr` node of the left operand.
+ * @param right the value `Instr` node of the right operand.
  */
 export const mul = <T extends NumericDataType>(
   dataType: T,
@@ -250,12 +263,12 @@ export const mul = <T extends NumericDataType>(
  * Creates a node for the `div_s` instruction.
  *
  * When compiled, results in
- * ```wat
+ * ```wasm
  * ([dataType].div_s [left] [right])
  * ```
  * @param dataType the data type of both operands and of the result type.
- * @param left the value `Expr` node of the left operand.
- * @param right the value `Expr` node of the right operand.
+ * @param left the value `Instr` node of the left operand.
+ * @param right the value `Instr` node of the right operand.
  */
 export const divSigned = <T extends NumericDataType>(
   dataType: T,
@@ -273,12 +286,12 @@ export const divSigned = <T extends NumericDataType>(
  * Creates a node for the `div_u` instruction.
  *
  * When compiled, results in
- * ```wat
+ * ```wasm
  * ([dataType].div_u [left] [right])
  * ```
  * @param dataType the data type of both operands and of the result type.
- * @param left the value `Expr` node of the left operand.
- * @param right the value `Expr` node of the right operand.
+ * @param left the value `Instr` node of the left operand.
+ * @param right the value `Instr` node of the right operand.
  */
 export const divUnsigned = <T extends NumericDataType>(
   dataType: T,
@@ -296,12 +309,12 @@ export const divUnsigned = <T extends NumericDataType>(
  * Creates a node for the `rem_s` instruction.
  *
  * When compiled, results in
- * ```wat
+ * ```wasm
  * ([dataType].rem_s [left] [right])
  * ```
  * @param dataType the data type of both operands and of the result type.
- * @param left the value `Expr` node of the left operand.
- * @param right the value `Expr` node of the right operand.
+ * @param left the value `Instr` node of the left operand.
+ * @param right the value `Instr` node of the right operand.
  */
 export const remSigned = <T extends IntegerDataType>(
   dataType: T,
@@ -319,12 +332,12 @@ export const remSigned = <T extends IntegerDataType>(
  * Creates a node for the `rem_u` instruction.
  *
  * When compiled, results in
- * ```wat
+ * ```wasm
  * ([dataType].rem_u [left] [right])
  * ```
  * @param dataType the data type of both operands and of the result type.
- * @param left the value `Expr` node of the left operand.
- * @param right the value `Expr` node of the right operand.
+ * @param left the value `Instr` node of the left operand.
+ * @param right the value `Instr` node of the right operand.
  */
 export const remUnsigned = <T extends IntegerDataType>(
   dataType: T,
@@ -342,7 +355,7 @@ export const remUnsigned = <T extends IntegerDataType>(
  * Creates a node for the `const` instruction.
  *
  * When compiled, results in
- * ```wat
+ * ```wasm
  * ([dataType].const [value])
  * ```
  * @param dataType the data type of the constant.
@@ -352,7 +365,7 @@ export const constant = <T extends NumericDataType>(
   dataType: T,
   value: number,
 ): Const<T> => ({
-  __nodeType: 'const',
+  __nodeType: 'constant',
   value,
   dataType,
   returnType: dataType,
@@ -363,7 +376,7 @@ export const constant = <T extends NumericDataType>(
  * Note: to add the function to your module, use `w.addFunc`.
  *
  * When compiled, results in
- * ```wat
+ * ```wasm
  * (func $[name]
  *  (param $[param name] [param type]) ;; for each param in signature.params
  *  (local $[local name] [local type]) ;; for each local in signature.locals
@@ -375,7 +388,7 @@ export const constant = <T extends NumericDataType>(
  * @param signature.params a list of `[type, name]` tuples for each param.
  * @param signature.locals a list of `[type, name]` tuples for each local.
  * @param signature.returnType the return type of the function. Has to be the same as the `returnType` of `body`.
- * @param body the value `Expr` node to be returned.
+ * @param body the value `Instr` node to be returned.
  */
 export const func = <T extends DataType>(
   name: string,
@@ -399,10 +412,10 @@ export const func = <T extends DataType>(
  * Creates a node for the `drop` instruction.
  *
  * When compiled, results in
- * ```wat
+ * ```wasm
  * (drop [value])
  * ```
- * @param value the value `Expr` to be dropped.
+ * @param value the value `Instr` to be dropped.
  */
 export const drop = (value: Instr): Drop => ({
   __nodeType: 'drop',
@@ -432,14 +445,14 @@ export const block = <T extends DataType>(
  * Creates a node for the `call` instruction.
  *
  * When compiled, results in
- * ```wat
+ * ```wasm
  * (call $[name]
  *  [arg] ;; for each argument in `args`
  * )
  * ```
  * @param name the name of the function to be called.
  * @param returnType the return type of the function.
- * @param args a list of value `Expr` nodes in the order of the function's params.
+ * @param args a list of value `Instr` nodes in the order of the function's params.
  */
 export const call = <T extends NumericDataType>(
   name: string,
@@ -456,7 +469,7 @@ export const call = <T extends NumericDataType>(
  * Creates a node for the `call_indirect` instruction.
  *
  * When compiled, results in
- * ```wat
+ * ```wasm
  * (call_indirect
  *  $[tableName]
  *  (param [param type]) ;; for each param in `signature.params`
@@ -466,10 +479,10 @@ export const call = <T extends NumericDataType>(
  * )
  * ```
  * @param tableName the name of the `funcref` table.
- * @param address the value `Expr` node for the address of the function in the `funcref` table.
+ * @param address the value `Instr` node for the address of the function in the `funcref` table.
  * @param signature.params a list of `[type, name]` tuples for each param.
  * @param signature.returnType the return type of the function.
- * @param args a list of value `Expr` nodes in the order of the function's params.
+ * @param args a list of value `Instr` nodes in the order of the function's params.
  */
 export const callIndirect = <T extends NumericDataType>(
   tableName: string,
@@ -493,7 +506,7 @@ export const callIndirect = <T extends NumericDataType>(
  * Creates a node for the `load` instruction.
  *
  * When compiled, results in
- * ```wat
+ * ```wasm
  * ([dataType].load
  *  offset=[offset] ;; if not 0
  *  align=[align] ;; if not null
@@ -503,7 +516,7 @@ export const callIndirect = <T extends NumericDataType>(
  * @param dataType the data type of the value.
  * @param offset the literal offset value.
  * @param align the optional literal align value.
- * @param base the `Expr` node for the base address in memory.
+ * @param base the `Instr` node for the base address in memory.
  */
 export const load = <T extends NumericDataType>(
   dataType: T,
@@ -523,7 +536,7 @@ export const load = <T extends NumericDataType>(
  * Creates a node for the `load8_s` instruction.
  *
  * When compiled, results in
- * ```wat
+ * ```wasm
  * ([dataType].load8_s
  *  offset=[offset] ;; if not 0
  *  align=[align] ;; if not null
@@ -533,7 +546,7 @@ export const load = <T extends NumericDataType>(
  * @param dataType the data type of the value.
  * @param offset the literal offset value.
  * @param align the optional literal align value.
- * @param base the `Expr` node for the base address in memory.
+ * @param base the `Instr` node for the base address in memory.
  */
 export const load8SignExt = <T extends IntegerDataType>(
   dataType: T,
@@ -553,7 +566,7 @@ export const load8SignExt = <T extends IntegerDataType>(
  * Creates a node for the `load8_u` instruction.
  *
  * When compiled, results in
- * ```wat
+ * ```wasm
  * ([dataType].load8_u
  *  offset=[offset] ;; if not 0
  *  align=[align] ;; if not null
@@ -563,7 +576,7 @@ export const load8SignExt = <T extends IntegerDataType>(
  * @param dataType the data type of the value.
  * @param offset the literal offset value.
  * @param align the optional literal align value.
- * @param base the `Expr` node for the base address in memory.
+ * @param base the `Instr` node for the base address in memory.
  */
 export const load8ZeroExt = <T extends IntegerDataType>(
   dataType: T,
@@ -583,7 +596,7 @@ export const load8ZeroExt = <T extends IntegerDataType>(
  * Creates a node for the `load16_s` instruction.
  *
  * When compiled, results in
- * ```wat
+ * ```wasm
  * ([dataType].load16_s
  *  offset=[offset] ;; if not 0
  *  align=[align] ;; if not null
@@ -593,7 +606,7 @@ export const load8ZeroExt = <T extends IntegerDataType>(
  * @param dataType the data type of the value.
  * @param offset the literal offset value.
  * @param align the optional literal align value.
- * @param base the `Expr` node for the base address in memory.
+ * @param base the `Instr` node for the base address in memory.
  */
 export const load16SignExt = <T extends IntegerDataType>(
   dataType: T,
@@ -613,7 +626,7 @@ export const load16SignExt = <T extends IntegerDataType>(
  * Creates a node for the `load16_u` instruction.
  *
  * When compiled, results in
- * ```wat
+ * ```wasm
  * ([dataType].load16_u
  *  offset=[offset] ;; if not 0
  *  align=[align] ;; if not null
@@ -623,7 +636,7 @@ export const load16SignExt = <T extends IntegerDataType>(
  * @param dataType the data type of the value.
  * @param offset the literal offset value.
  * @param align the optional literal align value.
- * @param base the `Expr` node for the base address in memory.
+ * @param base the `Instr` node for the base address in memory.
  */
 export const load16ZeroExt = <T extends IntegerDataType>(
   dataType: T,
@@ -643,7 +656,7 @@ export const load16ZeroExt = <T extends IntegerDataType>(
  * Creates a node for the `load32_s` instruction.
  *
  * When compiled, results in
- * ```wat
+ * ```wasm
  * (i64.load32_s
  *  offset=[offset] ;; if not 0
  *  align=[align] ;; if not null
@@ -652,7 +665,7 @@ export const load16ZeroExt = <T extends IntegerDataType>(
  * ```
  * @param offset the literal offset value.
  * @param align the optional literal align value.
- * @param base the `Expr` node for the base address in memory.
+ * @param base the `Instr` node for the base address in memory.
  */
 export const load32SignExt = (
   offset: number,
@@ -671,7 +684,7 @@ export const load32SignExt = (
  * Creates a node for the `load32_u` instruction.
  *
  * When compiled, results in
- * ```wat
+ * ```wasm
  * (i64.load32_u
  *  offset=[offset] ;; if not 0
  *  align=[align] ;; if not null
@@ -681,7 +694,7 @@ export const load32SignExt = (
  * @param dataType the data type of the value.
  * @param offset the literal offset value.
  * @param align the optional literal align value.
- * @param base the `Expr` node for the base address in memory.
+ * @param base the `Instr` node for the base address in memory.
  */
 export const load32ZeroExt = (
   offset: number,
@@ -700,7 +713,7 @@ export const load32ZeroExt = (
  * Creates a node for the `store` instruction.
  *
  * When compiled, results in
- * ```wat
+ * ```wasm
  * ([dataType].store
  *  offset=[offset] ;; if not 0
  *  align=[align] ;; if not null
@@ -711,8 +724,8 @@ export const load32ZeroExt = (
  * @param dataType the data type of the value.
  * @param offset the literal offset value.
  * @param align the optional literal align value.
- * @param base the `Expr` node for the base address in memory.
- * @param value the `Expr` node for the value to be stored.
+ * @param base the `Instr` node for the base address in memory.
+ * @param value the `Instr` node for the value to be stored.
  */
 export const store = (
   dataType: NumericDataType,
@@ -734,7 +747,7 @@ export const store = (
  * Creates a node for the `store8` instruction.
  *
  * When compiled, results in
- * ```wat
+ * ```wasm
  * ([dataType].store8
  *  offset=[offset] ;; if not 0
  *  align=[align] ;; if not null
@@ -745,8 +758,8 @@ export const store = (
  * @param dataType the data type of the value.
  * @param offset the literal offset value.
  * @param align the optional literal align value.
- * @param base the `Expr` node for the base address in memory.
- * @param value the `Expr` node for the value to be stored.
+ * @param base the `Instr` node for the base address in memory.
+ * @param value the `Instr` node for the value to be stored.
  */
 export const store8 = (
   dataType: IntegerDataType,
@@ -768,7 +781,7 @@ export const store8 = (
  * Creates a node for the `store16` instruction.
  *
  * When compiled, results in
- * ```wat
+ * ```wasm
  * ([dataType].store16
  *  offset=[offset] ;; if not 0
  *  align=[align] ;; if not null
@@ -779,8 +792,8 @@ export const store8 = (
  * @param dataType the data type of the value.
  * @param offset the literal offset value.
  * @param align the optional literal align value.
- * @param base the `Expr` node for the base address in memory.
- * @param value the `Expr` node for the value to be stored.
+ * @param base the `Instr` node for the base address in memory.
+ * @param value the `Instr` node for the value to be stored.
  */
 export const store16 = (
   dataType: IntegerDataType,
@@ -802,7 +815,7 @@ export const store16 = (
  * Creates a node for the `store32` instruction.
  *
  * When compiled, results in
- * ```wat
+ * ```wasm
  * (i64.store32
  *  offset=[offset] ;; if not 0
  *  align=[align] ;; if not null
@@ -812,8 +825,8 @@ export const store16 = (
  * ```
  * @param offset the literal offset value.
  * @param align the optional literal align value.
- * @param base the `Expr` node for the base address in memory.
- * @param value the `Expr` node for the value to be stored.
+ * @param base the `Instr` node for the base address in memory.
+ * @param value the `Instr` node for the value to be stored.
  */
 export const store32 = (
   offset: number,
@@ -830,6 +843,19 @@ export const store32 = (
   value,
 });
 
+/**
+ * Creates a node for the `loop` instruction.
+ *
+ * When compiled, results in
+ * ```wasm
+ * (loop
+ *  $[name] ;; if name is not null
+ *  [...body] ;; for each body Instr node
+ * )
+ * ```
+ * @param name The optional name of the loop.
+ * @param body The list of `Instr` nodes for the body of the loop.
+ */
 export const loop = (name: string | null, body: Instr<'none'>[]): Loop => ({
   __nodeType: 'loop',
   returnType: 'none',
@@ -837,6 +863,19 @@ export const loop = (name: string | null, body: Instr<'none'>[]): Loop => ({
   body,
 });
 
+/**
+ * Creates a node for the `br_if` instruction.
+ *
+ * When compield, results in
+ * ```wasm
+ * (br_if
+ *  $[branchTo] or [branchTo] ;; if branchTo is a string or number
+ *  [cond]
+ * )
+ * ```
+ * @param branchTo The name or distance.
+ * @param cond The `Instr` node for the condition to evaluate.
+ */
 export const branchIf = (
   branchTo: string | number,
   cond: Instr<NumericDataType>,
@@ -847,18 +886,298 @@ export const branchIf = (
   cond,
 });
 
+/**
+ * Creates a node for the `br` instruction.
+ *
+ * When compield, results in
+ * ```wasm
+ * (br
+ *  $[branchTo] or [branchTo] ;; if branchTo is a string or number
+ * )
+ * ```
+ * @param branchTo The name or distance.
+ */
 export const branch = (branchTo: string | number): Branch => ({
   __nodeType: 'branch',
   returnType: 'none',
   branchTo,
 });
 
-export const eqz = <T extends NumericDataType>(
+/**
+ * Creates a node for the `eqz` instruction.
+ *
+ * When compiled, results in
+ * ```wasm
+ * ([dataType].eqz
+ *   [right]
+ * )
+ * ```
+ * @param dataType The data type of the instruction and thus, the right operand.
+ * @param right The `Instr` node for the right operand.
+ */
+export const equalZero = <T extends NumericDataType>(
   dataType: T,
   right: Instr<T>,
-): Eqz<T> => ({
-  __nodeType: 'eqz',
+): EqualZero<T> => ({
+  __nodeType: 'equalZero',
   returnType: 'i32',
   dataType: dataType,
+  right,
+});
+
+/**
+ * Creates a node for the `eq` instruction.
+ *
+ * When compiled, results in
+ * ```wasm
+ * ([dataType].eqz
+ *  [left]
+ *  [right]
+ * )
+ * ```
+ * @param dataType The data type of the instruction and thus, the right operand.
+ * @param right The `Instr` node for the right operand.
+ */
+export const equal = <T extends NumericDataType>(
+  dataType: T,
+  left: Instr<T>,
+  right: Instr<T>,
+): Equal<T> => ({
+  __nodeType: 'equal',
+  returnType: 'i32',
+  dataType: dataType,
+  left,
+  right,
+});
+
+/**
+ * Creates a node for the `ne` instruction.
+ *
+ * When compiled, results in
+ * ```wasm
+ * ([dataType].eqz
+ *  [left]
+ *  [right]
+ * )
+ * ```
+ * @param dataType The data type of the instruction and thus, the right operand.
+ * @param right The `Instr` node for the right operand.
+ */
+export const notEqual = <T extends NumericDataType>(
+  dataType: T,
+  left: Instr<T>,
+  right: Instr<T>,
+): NotEqual<T> => ({
+  __nodeType: 'notEqual',
+  returnType: 'i32',
+  dataType: dataType,
+  left,
+  right,
+});
+
+/**
+ * Creates a node for the `gt_s` instruction.
+ *
+ * When compiled, results in
+ * ```wasm
+ * ([dataType].gt_s
+ *  [left]
+ *  [right]
+ * )
+ * ```
+ * @param dataType The data type of the instruction and thus, the right operand.
+ * @param right The `Instr` node for the right operand.
+ */
+export const greaterThanSigned = <T extends NumericDataType>(
+  dataType: T,
+  left: Instr<T>,
+  right: Instr<T>,
+): GreaterThanSigned<T> => ({
+  __nodeType: 'greaterThanSigned',
+  returnType: 'i32',
+  dataType: dataType,
+  left,
+  right,
+});
+
+/**
+ * Creates a node for the `gt_u` instruction.
+ *
+ * When compiled, results in
+ * ```wasm
+ * ([dataType].gt_u
+ *  [left]
+ *  [right]
+ * )
+ * ```
+ * @param dataType The data type of the instruction and thus, the right operand.
+ * @param left The `Instr` node for the left operand.
+ * @param right The `Instr` node for the right operand.
+ */
+export const greaterThanUnsigned = <T extends NumericDataType>(
+  dataType: T,
+  left: Instr<T>,
+  right: Instr<T>,
+): GreaterThanUnsigned<T> => ({
+  __nodeType: 'greaterThanUnsigned',
+  returnType: 'i32',
+  dataType: dataType,
+  left,
+  right,
+});
+
+/**
+ * Creates a node for the `lt_s` instruction.
+ *
+ * When compiled, results in
+ * ```wasm
+ * ([dataType].lt_s
+ *  [left]
+ *  [right]
+ * )
+ * ```
+ * @param dataType The data type of the instruction and thus, the right operand.
+ * @param left The `Instr` node for the left operand.
+ * @param right The `Instr` node for the right operand.
+ */
+export const lessThanSigned = <T extends NumericDataType>(
+  dataType: T,
+  left: Instr<T>,
+  right: Instr<T>,
+): LessThanSigned<T> => ({
+  __nodeType: 'lessThanSigned',
+  returnType: 'i32',
+  dataType: dataType,
+  left,
+  right,
+});
+
+/**
+ * Creates a node for the `lt_u` instruction.
+ *
+ * When compiled, results in
+ * ```wasm
+ * ([dataType].lt_u
+ *  [left]
+ *  [right]
+ * )
+ * ```
+ * @param dataType The data type of the instruction and thus, the right operand.
+ * @param left The `Instr` node for the left operand.
+ * @param right The `Instr` node for the right operand.
+ */
+export const lessThanUnsigned = <T extends NumericDataType>(
+  dataType: T,
+  left: Instr<T>,
+  right: Instr<T>,
+): LessThanUnsigned<T> => ({
+  __nodeType: 'lessThanUnsigned',
+  returnType: 'i32',
+  dataType: dataType,
+  left,
+  right,
+});
+
+/**
+ * Creates a node for the `ge_s` instruction.
+ *
+ * When compiled, results in
+ * ```wasm
+ * ([dataType].ge_s
+ *  [left]
+ *  [right]
+ * )
+ * ```
+ * @param dataType The data type of the instruction and thus, the right operand.
+ * @param left The `Instr` node for the left operand.
+ * @param right The `Instr` node for the right operand.
+ */
+export const greaterEqualSigned = <T extends NumericDataType>(
+  dataType: T,
+  left: Instr<T>,
+  right: Instr<T>,
+): GreaterEqualSigned<T> => ({
+  __nodeType: 'greaterEqualSigned',
+  returnType: 'i32',
+  dataType: dataType,
+  left,
+  right,
+});
+
+/**
+ * Creates a node for the `ge_u` instruction.
+ *
+ * When compiled, results in
+ * ```wasm
+ * ([dataType].ge_u
+ *  [left]
+ *  [right]
+ * )
+ * ```
+ * @param dataType The data type of the instruction and thus, the right operand.
+ * @param left The `Instr` node for the left operand.
+ * @param right The `Instr` node for the right operand.
+ */
+export const greaterEqualUnsigned = <T extends NumericDataType>(
+  dataType: T,
+  left: Instr<T>,
+  right: Instr<T>,
+): GreaterEqualUnsigned<T> => ({
+  __nodeType: 'greaterEqualUnsigned',
+  returnType: 'i32',
+  dataType: dataType,
+  left,
+  right,
+});
+
+/**
+ * Creates a node for the `le_s` instruction.
+ *
+ * When compiled, results in
+ * ```wasm
+ * ([dataType].le_s
+ *  [left]
+ *  [right]
+ * )
+ * ```
+ * @param dataType The data type of the instruction and thus, the right operand.
+ * @param left The `Instr` node for the left operand.
+ * @param right The `Instr` node for the right operand.
+ */
+export const lessEqualSigned = <T extends NumericDataType>(
+  dataType: T,
+  left: Instr<T>,
+  right: Instr<T>,
+): LessEqualSigned<T> => ({
+  __nodeType: 'lessEqualSigned',
+  returnType: 'i32',
+  dataType: dataType,
+  left,
+  right,
+});
+
+/**
+ * Creates a node for the `le_u` instruction.
+ *
+ * When compiled, results in
+ * ```wasm
+ * ([dataType].le_u
+ *  [left]
+ *  [right]
+ * )
+ * ```
+ * @param dataType The data type of the instruction and thus, the right operand.
+ * @param left The `Instr` node for the left operand.
+ * @param right The `Instr` node for the right operand.
+ */
+export const lessEqualUnsigned = <T extends NumericDataType>(
+  dataType: T,
+  left: Instr<T>,
+  right: Instr<T>,
+): LessEqualUnsigned<T> => ({
+  __nodeType: 'lessEqualUnsigned',
+  returnType: 'i32',
+  dataType: dataType,
+  left,
   right,
 });

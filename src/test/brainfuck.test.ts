@@ -156,7 +156,7 @@ const compile = (input: string) => {
               // break out of the loop by branching to the block
               w.branchIf(
                 1,
-                w.eqz(
+                w.equalZero(
                   'i32',
                   w.load8ZeroExt('i32', 0, null, w.local.get('i32', 'dataPtr')),
                 ),
@@ -255,7 +255,7 @@ test('Basic loop', async () => {
   expect(dataView.getInt8(0)).toBe(3);
 });
 
-test.skip('Hello world', async () => {
+test('Hello world', async () => {
   const { dataView } = await runProgram(`
     >++++++++[<+++++++++>-]<.>++++[<+++++++>-]<+.+++++++..+++.>>++++++[<+++++++>-]<+
     +.------------.>++++++[<+++++++++>-]<+.<.+++.------.--------.>>>++++[<++++++++>-

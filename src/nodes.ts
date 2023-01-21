@@ -141,8 +141,8 @@ export type RemUnsigned<T extends NumericDataType = NumericDataType> = {
 export type Func<T extends DataType = DataType> = {
   __nodeType: 'func';
   name: string;
-  params: [type: DataType, name: string][];
-  locals: [type: DataType, name: string][];
+  params: [type: NumericDataType, name: string][];
+  locals: [type: NumericDataType, name: string][];
   body: Instr<T>;
   dataType: T;
   exportName: string | null;
@@ -189,7 +189,7 @@ export type Block<T extends DataType = DataType> = {
  * The node representing the `const` instruction.
  */
 export type Const<T extends NumericDataType = NumericDataType> = {
-  __nodeType: 'const';
+  __nodeType: 'constant';
   value: number;
   dataType: T;
   returnType: T;
@@ -205,23 +205,41 @@ export type Load<T extends NumericDataType = NumericDataType> = {
   dataType: T;
   returnType: T;
 };
+/**
+ * The node representing the `load8_s` instruction.
+ */
 export type Load8SignExt<T extends NumericDataType = NumericDataType> = Replace<
   Load<T>,
   { __nodeType: 'load8SignExt' }
 >;
+/**
+ * The node representing the `load16_s` instruction.
+ */
 export type Load16SignExt<T extends NumericDataType = NumericDataType> =
   Replace<Load<T>, { __nodeType: 'load16SignExt' }>;
+/**
+ * The node representing the `load32_s` instruction.
+ */
 export type Load32SignExt<T extends NumericDataType = NumericDataType> =
   Replace<
     Load<T>,
     { __nodeType: 'load32SignExt'; dataType: 'i64'; returnType: 'i64' }
   >;
+/**
+ * The node representing the `load8_u` instruction.
+ */
 export type Load8ZeroExt<T extends NumericDataType = NumericDataType> = Replace<
   Load<T>,
   { __nodeType: 'load8ZeroExt' }
 >;
+/**
+ * The node representing the `load16_u` instruction.
+ */
 export type Load16ZeroExt<T extends NumericDataType = NumericDataType> =
   Replace<Load<T>, { __nodeType: 'load16ZeroExt' }>;
+/**
+ * The node representing the `load32_u` instruction.
+ */
 export type Load32ZeroExt<T extends NumericDataType = NumericDataType> =
   Replace<
     Load<T>,
@@ -239,8 +257,17 @@ export type Store = {
   value: Instr;
   returnType: 'none';
 };
+/**
+ * The node representing the `store8` instruction.
+ */
 export type Store8 = Replace<Store, { __nodeType: 'store8' }>;
+/**
+ * The node representing the `store16` instruction.
+ */
 export type Store16 = Replace<Store, { __nodeType: 'store16' }>;
+/**
+ * The node representing the `store32` instruction.
+ */
 export type Store32 = Replace<
   Store,
   { __nodeType: 'store32'; dataType: 'i64' }
@@ -276,12 +303,123 @@ export type Branch = {
 };
 
 /**
- * The node representing the `eqz` instruction.
+ * The node representing the `eq` instruction.
  */
-export type Eqz<T extends NumericDataType = NumericDataType> = {
-  __nodeType: 'eqz';
+export type Equal<T extends NumericDataType = NumericDataType> = {
+  __nodeType: 'equal';
   returnType: 'i32';
   dataType: T;
+  left: Instr<T>;
+  right: Instr<T>;
+};
+
+/**
+ * The node representing the `eqz` instruction.
+ */
+export type EqualZero<T extends NumericDataType = NumericDataType> = {
+  __nodeType: 'equalZero';
+  returnType: 'i32';
+  dataType: T;
+  right: Instr<T>;
+};
+
+/**
+ * The node representing the `eq` instruction.
+ */
+export type NotEqual<T extends NumericDataType = NumericDataType> = {
+  __nodeType: 'notEqual';
+  returnType: 'i32';
+  dataType: T;
+  left: Instr<T>;
+  right: Instr<T>;
+};
+
+/**
+ * The node representing the `gt_s` instruction.
+ */
+export type GreaterThanSigned<T extends NumericDataType = NumericDataType> = {
+  __nodeType: 'greaterThanSigned';
+  returnType: 'i32';
+  dataType: T;
+  left: Instr<T>;
+  right: Instr<T>;
+};
+
+/**
+ * The node representing the `gt_u` instruction.
+ */
+export type GreaterThanUnsigned<T extends NumericDataType = NumericDataType> = {
+  __nodeType: 'greaterThanUnsigned';
+  returnType: 'i32';
+  dataType: T;
+  left: Instr<T>;
+  right: Instr<T>;
+};
+
+/**
+ * The node representing the `lt_s` instruction.
+ */
+export type LessThanSigned<T extends NumericDataType = NumericDataType> = {
+  __nodeType: 'lessThanSigned';
+  returnType: 'i32';
+  dataType: T;
+  left: Instr<T>;
+  right: Instr<T>;
+};
+
+/**
+ * The node representing the `lt_u` instruction.
+ */
+export type LessThanUnsigned<T extends NumericDataType = NumericDataType> = {
+  __nodeType: 'lessThanUnsigned';
+  returnType: 'i32';
+  dataType: T;
+  left: Instr<T>;
+  right: Instr<T>;
+};
+
+/**
+ * The node representing the `ge_s` instruction.
+ */
+export type GreaterEqualSigned<T extends NumericDataType = NumericDataType> = {
+  __nodeType: 'greaterEqualSigned';
+  returnType: 'i32';
+  dataType: T;
+  left: Instr<T>;
+  right: Instr<T>;
+};
+
+/**
+ * The node representing the `ge_u` instruction.
+ */
+export type GreaterEqualUnsigned<T extends NumericDataType = NumericDataType> =
+  {
+    __nodeType: 'greaterEqualUnsigned';
+    returnType: 'i32';
+    dataType: T;
+    left: Instr<T>;
+    right: Instr<T>;
+  };
+
+/**
+ * The node representing the `le_s` instruction.
+ */
+export type LessEqualSigned<T extends NumericDataType = NumericDataType> = {
+  __nodeType: 'lessEqualSigned';
+  returnType: 'i32';
+  dataType: T;
+  left: Instr<T>;
+  right: Instr<T>;
+};
+
+/**
+ * The node representing the `le_u` instruction.
+ */
+export type LessEqualUnsigned<T extends NumericDataType = NumericDataType> = {
+  __nodeType: 'lessEqualUnsigned';
+  returnType: 'i32';
+  dataType: T;
+  left: Instr<T>;
   right: Instr<T>;
 };
 
@@ -321,7 +459,16 @@ type InstrList =
   | Loop
   | Branch
   | BranchIf
-  | Eqz;
+  | Equal
+  | EqualZero
+  | GreaterThanSigned
+  | GreaterThanUnsigned
+  | LessThanSigned
+  | LessThanUnsigned
+  | GreaterEqualSigned
+  | GreaterEqualUnsigned
+  | LessEqualSigned
+  | LessEqualUnsigned;
 
 type FilterInstrByDataType<I extends { returnType: any }, DT> = I extends any
   ? I['returnType'] & DT extends never
@@ -329,6 +476,13 @@ type FilterInstrByDataType<I extends { returnType: any }, DT> = I extends any
     : I
   : never;
 
+/**
+ * This generic type returns a union of all the instruction node types
+ * that have a compatible return type.
+ *
+ * For instance, `Instr<'i32'>` will be the union of all instruction node types
+ * that can have `returnType === 'i32'`.
+ */
 export type Instr<DT extends DataType = DataType> = FilterInstrByDataType<
   InstrList,
   DT

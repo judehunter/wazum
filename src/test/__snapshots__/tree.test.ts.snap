@@ -5,14 +5,14 @@ exports[`tree creation add constant 1`] = `
   "__nodeType": "add",
   "dataType": "i32",
   "left": {
-    "__nodeType": "const",
+    "__nodeType": "constant",
     "dataType": "i32",
     "returnType": "i32",
     "value": 1,
   },
   "returnType": "i32",
   "right": {
-    "__nodeType": "const",
+    "__nodeType": "constant",
     "dataType": "i32",
     "returnType": "i32",
     "value": 2,
@@ -132,9 +132,7 @@ exports[`tree creation function 1`] = `
   "__nodeType": "func",
   "body": {
     "__nodeType": "block",
-    "name": null,
-    "returnType": "i32",
-    "value": [
+    "body": [
       {
         "__nodeType": "drop",
         "returnType": "none",
@@ -186,6 +184,8 @@ exports[`tree creation function 1`] = `
         "returnType": "i32",
       },
     ],
+    "name": null,
+    "returnType": "i32",
   },
   "dataType": "i32",
   "exportName": null,

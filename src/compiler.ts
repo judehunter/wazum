@@ -28,7 +28,7 @@ import {
   Loop,
   BranchIf,
   Branch,
-  Eqz,
+  EqualZero,
   Load8ZeroExt,
   Load8SignExt,
   Load16SignExt,
@@ -38,6 +38,13 @@ import {
   Store8,
   Store16,
   Store32,
+  Equal,
+  GreaterEqualSigned,
+  GreaterEqualUnsigned,
+  LessEqualSigned,
+  LessEqualUnsigned,
+  GreaterThanSigned,
+  GreaterThanUnsigned,
 } from './nodes';
 import { match } from 'ts-pattern';
 
@@ -154,6 +161,23 @@ const divSigned = makeBinaryCompiler<DivSigned<NumericDataType>>('div_s');
 const divUnsigned = makeBinaryCompiler<DivUnsigned<NumericDataType>>('div_u');
 const remSigned = makeBinaryCompiler<RemSigned<NumericDataType>>('rem_s');
 const remUnsigned = makeBinaryCompiler<RemUnsigned<NumericDataType>>('rem_u');
+const equal = makeBinaryCompiler<Equal<NumericDataType>>('eq');
+const greaterThanSigned =
+  makeBinaryCompiler<GreaterThanSigned<NumericDataType>>('gt_s');
+const greaterThanUnsigned =
+  makeBinaryCompiler<GreaterThanUnsigned<NumericDataType>>('gt_u');
+const lessThanSigned =
+  makeBinaryCompiler<GreaterThanSigned<NumericDataType>>('lt_s');
+const lessThanUnsigned =
+  makeBinaryCompiler<GreaterThanUnsigned<NumericDataType>>('lt_u');
+const greaterEqualSigned =
+  makeBinaryCompiler<GreaterEqualSigned<NumericDataType>>('ge_s');
+const greaterEqualUnsigned =
+  makeBinaryCompiler<GreaterEqualUnsigned<NumericDataType>>('ge_u');
+const lessEqualSigned =
+  makeBinaryCompiler<LessEqualSigned<NumericDataType>>('le_s');
+const lessEqualUnsigned =
+  makeBinaryCompiler<LessEqualUnsigned<NumericDataType>>('le_u');
 
 const constant = (node: Const<NumericDataType>, indent = 0) => {
   return compileSExpression(
@@ -313,51 +337,64 @@ const branch = (node: Branch, indent = 0) => {
   );
 };
 
-const eqz = (node: Eqz, indent = 0) => {
+const equalZero = (node: EqualZero, indent = 0) => {
   return compileSExpression(
     { fn: `${node.dataType}.eqz`, blockArgs: [instr(node.right, indent + 1)] },
     indent,
   );
 };
 
+const instrTypesCompilers = {
+  localGet,
+  localSet,
+  localTee,
+  add,
+  sub,
+  mul,
+  divSigned,
+  divUnsigned,
+  remSigned,
+  remUnsigned,
+  constant,
+  call,
+  callIndirect,
+  load,
+  load8SignExt,
+  load8ZeroExt,
+  load16SignExt,
+  load16ZeroExt,
+  load32SignExt,
+  load32ZeroExt,
+  store,
+  store8,
+  store16,
+  store32,
+  globalGet,
+  globalSet,
+  globalTee,
+  loop,
+  branchIf,
+  branch,
+  equalZero,
+  equal,
+  drop,
+  block,
+  greaterThanSigned,
+  greaterThanUnsigned,
+  lessThanSigned,
+  lessThanUnsigned,
+  greaterEqualSigned,
+  greaterEqualUnsigned,
+  lessEqualSigned,
+  lessEqualUnsigned,
+};
+
 const instr = (node: Instr, indent = 0): string => {
-  return match(node)
-    .with({ __nodeType: 'localGet' }, (x) => localGet(x, indent))
-    .with({ __nodeType: 'localSet' }, (x) => localSet(x, indent))
-    .with({ __nodeType: 'localTee' }, (x) => localTee(x, indent))
-    .with({ __nodeType: 'globalGet' }, (x) => globalGet(x, indent))
-    .with({ __nodeType: 'globalSet' }, (x) => globalSet(x, indent))
-    .with({ __nodeType: 'globalTee' }, (x) => globalTee(x, indent))
-    .with({ __nodeType: 'add' }, (x) => add(x, indent))
-    .with({ __nodeType: 'sub' }, (x) => sub(x, indent))
-    .with({ __nodeType: 'mul' }, (x) => mul(x, indent))
-    .with({ __nodeType: 'divSigned' }, (x) => divSigned(x, indent))
-    .with({ __nodeType: 'divUnsigned' }, (x) => divUnsigned(x, indent))
-    .with({ __nodeType: 'remSigned' }, (x) => remSigned(x, indent))
-    .with({ __nodeType: 'remUnsigned' }, (x) => remUnsigned(x, indent))
-    .with({ __nodeType: 'const' }, (x) => constant(x, indent))
-    .with({ __nodeType: 'call' }, (x) => call(x, indent))
-    .with({ __nodeType: 'callIndirect' }, (x) => callIndirect(x, indent))
-    .with({ __nodeType: 'block' }, (x) => block(x, indent))
-    .with({ __nodeType: 'drop' }, (x) => drop(x, indent))
-    .with({ __nodeType: 'store' }, (x) => store(x, indent))
-    .with({ __nodeType: 'store8' }, (x) => store8(x, indent))
-    .with({ __nodeType: 'store16' }, (x) => store16(x, indent))
-    .with({ __nodeType: 'store32' }, (x) => store32(x, indent))
-    .with({ __nodeType: 'load' }, (x) => load(x, indent))
-    .with({ __nodeType: 'load8SignExt' }, (x) => load8SignExt(x, indent))
-    .with({ __nodeType: 'load8ZeroExt' }, (x) => load8ZeroExt(x, indent))
-    .with({ __nodeType: 'load16SignExt' }, (x) => load16SignExt(x, indent))
-    .with({ __nodeType: 'load16ZeroExt' }, (x) => load16ZeroExt(x, indent))
-    .with({ __nodeType: 'load32SignExt' }, (x) => load32SignExt(x, indent))
-    .with({ __nodeType: 'load32ZeroExt' }, (x) => load32ZeroExt(x, indent))
-    .with({ __nodeType: 'loop' }, (x) => loop(x, indent))
-    .with({ __nodeType: 'branchIf' }, (x) => branchIf(x, indent))
-    .with({ __nodeType: 'branch' }, (x) => branch(x, indent))
-    .with({ __nodeType: 'eqz' }, (x) => eqz(x, indent))
-    .otherwise(() => {
-      throw new Error(`Unexpected ${node.__nodeType} node`);
-    });
+  const compiler = instrTypesCompilers[node.__nodeType];
+  if (!compiler) {
+    throw new Error(`Unexpected ${node.__nodeType} node`);
+  }
+  return compiler(node as any, indent);
 };
 
 export const compile = (m: Module) => {
@@ -485,36 +522,6 @@ export const compile = (m: Module) => {
 
 export const compilers = {
   instr,
-  localGet,
-  localSet,
-  localTee,
-  add,
-  sub,
-  mul,
-  divSigned,
-  divUnsigned,
-  remSigned,
-  remUnsigned,
-  constant,
-  call,
-  callIndirect,
   module: compile,
-  load,
-  load8SignExt,
-  load8ZeroExt,
-  load16SignExt,
-  load16ZeroExt,
-  load32SignExt,
-  load32ZeroExt,
-  store,
-  store8,
-  store16,
-  store32,
-  globalGet,
-  globalSet,
-  globalTee,
-  loop,
-  branchIf,
-  branch,
-  eqz,
+  ...instrTypesCompilers,
 };
