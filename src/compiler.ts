@@ -24,8 +24,21 @@ import {
   GlobalGet,
   GlobalSet,
   GlobalTee,
-  Expr,
-} from './variants';
+  PresentDataType,
+  Loop,
+  BranchIf,
+  Branch,
+  Eqz,
+  Load8ZeroExt,
+  Load8SignExt,
+  Load16SignExt,
+  Load16ZeroExt,
+  Load32SignExt,
+  Load32ZeroExt,
+  Store8,
+  Store16,
+  Store32,
+} from './nodes';
 import { match } from 'ts-pattern';
 
 // const trimdent = (str: string) => {
@@ -61,7 +74,7 @@ const compileSExpression = (
 
 const space = (indent: number) => ' '.repeat(indent);
 
-const localGet = (node: LocalGet<DataType>, indent = 0) => {
+const localGet = (node: LocalGet<NumericDataType>, indent = 0) => {
   return compileSExpression(
     { fn: 'local.get', inlineArgs: [`$${node.name}`] },
     indent,
@@ -79,7 +92,7 @@ const localSet = (node: LocalSet, indent = 0) => {
   );
 };
 
-const localTee = (node: LocalTee<DataType>, indent = 0) => {
+const localTee = (node: LocalTee<NumericDataType>, indent = 0) => {
   return compileSExpression(
     {
       fn: 'local.tee',
@@ -90,7 +103,7 @@ const localTee = (node: LocalTee<DataType>, indent = 0) => {
   );
 };
 
-const globalGet = (node: GlobalGet<DataType>, indent = 0) => {
+const globalGet = (node: GlobalGet<NumericDataType>, indent = 0) => {
   return compileSExpression(
     { fn: 'global.get', inlineArgs: [`$${node.name}`] },
     indent,
@@ -108,7 +121,7 @@ const globalSet = (node: GlobalSet, indent = 0) => {
   );
 };
 
-const globalTee = (node: GlobalTee<DataType>, indent = 0) => {
+const globalTee = (node: GlobalTee<NumericDataType>, indent = 0) => {
   return compileSExpression(
     {
       fn: 'global.tee',
@@ -119,8 +132,8 @@ const globalTee = (node: GlobalTee<DataType>, indent = 0) => {
   );
 };
 
-const makeBinaryParser =
-  <T extends { dataType: DataType; left: Expr; right: Expr }>(op: string) =>
+const makeBinaryCompiler =
+  <T extends { dataType: DataType; left: Instr; right: Instr }>(op: string) =>
   (node: T, indent = 0) => {
     return compileSExpression(
       {
@@ -134,15 +147,15 @@ const makeBinaryParser =
     );
   };
 
-const add = makeBinaryParser<Add<DataType>>('add');
-const sub = makeBinaryParser<Sub<DataType>>('sub');
-const mul = makeBinaryParser<Mul<DataType>>('mul');
-const divSigned = makeBinaryParser<DivSigned<DataType>>('div_s');
-const divUnsigned = makeBinaryParser<DivUnsigned<DataType>>('div_u');
-const remSigned = makeBinaryParser<RemSigned<DataType>>('rem_s');
-const remUnsigned = makeBinaryParser<RemUnsigned<DataType>>('rem_u');
+const add = makeBinaryCompiler<Add<NumericDataType>>('add');
+const sub = makeBinaryCompiler<Sub<NumericDataType>>('sub');
+const mul = makeBinaryCompiler<Mul<NumericDataType>>('mul');
+const divSigned = makeBinaryCompiler<DivSigned<NumericDataType>>('div_s');
+const divUnsigned = makeBinaryCompiler<DivUnsigned<NumericDataType>>('div_u');
+const remSigned = makeBinaryCompiler<RemSigned<NumericDataType>>('rem_s');
+const remUnsigned = makeBinaryCompiler<RemUnsigned<NumericDataType>>('rem_u');
 
-const constant = (node: Const<DataType>, indent = 0) => {
+const constant = (node: Const<NumericDataType>, indent = 0) => {
   return compileSExpression(
     { fn: `${node.dataType}.const`, inlineArgs: [`${node.value}`] },
     indent,
@@ -187,7 +200,7 @@ const block = (node: Block<DataType>, indent = 0) => {
         node.returnType !== 'none'
           ? space(indent + 1) + `(result ${node.returnType})`
           : null,
-        ...node.value.map((x) => instr(x as any, indent + 1)),
+        ...node.body.map((x) => instr(x as any, indent + 1)),
       ],
     },
     indent,
@@ -201,31 +214,108 @@ const drop = (node: Drop, indent = 0) => {
   );
 };
 
-const store = (node: Store, indent = 0) => {
+const makeStoreCompiler =
+  <T extends Store | Store8 | Store16 | Store32>(op: string) =>
+  (node: T, indent = 0) => {
+    return compileSExpression(
+      {
+        fn: `${node.dataType}.${op}`,
+        blockArgs: [
+          node.offset ? space(indent + 1) + `offset=${node.offset}` : null,
+          node.align ? space(indent + 1) + `align=${node.align}` : null,
+          instr(node.base, indent + 1),
+          instr(node.value, indent + 1),
+        ],
+      },
+      indent,
+    );
+  };
+
+const store = makeStoreCompiler<Store>('store');
+const store8 = makeStoreCompiler<Store8>('store8');
+const store16 = makeStoreCompiler<Store16>('store16');
+const store32 = makeStoreCompiler<Store32>('store32');
+
+const makeLoadCompiler =
+  <
+    T extends
+      | Load
+      | Load8SignExt
+      | Load8ZeroExt
+      | Load16SignExt
+      | Load16ZeroExt
+      | Load32SignExt
+      | Load32ZeroExt,
+  >(
+    op: string,
+  ) =>
+  (node: T, indent = 0) => {
+    return compileSExpression(
+      {
+        fn: `${node.dataType}.${op}`,
+        blockArgs: [
+          node.offset ? space(indent + 1) + `offset=${node.offset}` : null,
+          node.align !== null
+            ? space(indent + 1) + `align=${node.align}`
+            : null,
+          instr(node.base, indent + 1),
+        ],
+      },
+      indent,
+    );
+  };
+
+const load = makeLoadCompiler<Load>('load');
+const load8SignExt = makeLoadCompiler<Load8SignExt>('load8_s');
+const load8ZeroExt = makeLoadCompiler<Load8ZeroExt>('load8_u');
+const load16SignExt = makeLoadCompiler<Load16SignExt>('load16_s');
+const load16ZeroExt = makeLoadCompiler<Load16ZeroExt>('load16_u');
+const load32SignExt = makeLoadCompiler<Load32SignExt>('load32_s');
+const load32ZeroExt = makeLoadCompiler<Load32ZeroExt>('load32_u');
+
+const loop = (node: Loop, indent = 0) => {
   return compileSExpression(
     {
-      fn: `${node.dataType}.store`,
-      blockArgs: [
-        node.offset ? space(indent + 1) + `offset=${node.offset}` : null,
-        node.align ? space(indent + 1) + `align=${node.align}` : null,
-        instr(node.base, indent + 1),
-        instr(node.value, indent + 1),
+      fn: 'loop',
+      inlineArgs: [node.name !== null ? `$${node.name}` : null],
+      blockArgs: node.body.map((x) => instr(x, indent + 1)),
+    },
+    indent,
+  );
+};
+
+const branchIf = (node: BranchIf, indent = 0) => {
+  return compileSExpression(
+    {
+      fn: 'br_if',
+      inlineArgs: [
+        typeof node.branchTo === 'string'
+          ? `$${node.branchTo}`
+          : `${node.branchTo}`,
+      ],
+      blockArgs: [instr(node.cond, indent + 1)],
+    },
+    indent,
+  );
+};
+
+const branch = (node: Branch, indent = 0) => {
+  return compileSExpression(
+    {
+      fn: 'br',
+      inlineArgs: [
+        typeof node.branchTo === 'string'
+          ? `$${node.branchTo}`
+          : `${node.branchTo}`,
       ],
     },
     indent,
   );
 };
 
-const load = (node: Load<DataType>, indent = 0) => {
+const eqz = (node: Eqz, indent = 0) => {
   return compileSExpression(
-    {
-      fn: `${node.dataType}.load`,
-      blockArgs: [
-        node.offset ? space(indent + 1) + `offset=${node.offset}` : null,
-        node.align ? space(indent + 1) + `align=${node.align}` : null,
-        instr(node.base, indent + 1),
-      ],
-    },
+    { fn: `${node.dataType}.eqz`, blockArgs: [instr(node.right, indent + 1)] },
     indent,
   );
 };
@@ -251,7 +341,20 @@ const instr = (node: Instr, indent = 0): string => {
     .with({ __nodeType: 'block' }, (x) => block(x, indent))
     .with({ __nodeType: 'drop' }, (x) => drop(x, indent))
     .with({ __nodeType: 'store' }, (x) => store(x, indent))
+    .with({ __nodeType: 'store8' }, (x) => store8(x, indent))
+    .with({ __nodeType: 'store16' }, (x) => store16(x, indent))
+    .with({ __nodeType: 'store32' }, (x) => store32(x, indent))
     .with({ __nodeType: 'load' }, (x) => load(x, indent))
+    .with({ __nodeType: 'load8SignExt' }, (x) => load8SignExt(x, indent))
+    .with({ __nodeType: 'load8ZeroExt' }, (x) => load8ZeroExt(x, indent))
+    .with({ __nodeType: 'load16SignExt' }, (x) => load16SignExt(x, indent))
+    .with({ __nodeType: 'load16ZeroExt' }, (x) => load16ZeroExt(x, indent))
+    .with({ __nodeType: 'load32SignExt' }, (x) => load32SignExt(x, indent))
+    .with({ __nodeType: 'load32ZeroExt' }, (x) => load32ZeroExt(x, indent))
+    .with({ __nodeType: 'loop' }, (x) => loop(x, indent))
+    .with({ __nodeType: 'branchIf' }, (x) => branchIf(x, indent))
+    .with({ __nodeType: 'branch' }, (x) => branch(x, indent))
+    .with({ __nodeType: 'eqz' }, (x) => eqz(x, indent))
     .otherwise(() => {
       throw new Error(`Unexpected ${node.__nodeType} node`);
     });
@@ -365,6 +468,15 @@ export const compile = (m: Module) => {
             1,
           ),
         ),
+        m.start !== null
+          ? compileSExpression(
+              {
+                fn: 'start',
+                inlineArgs: [`$${m.start}`],
+              },
+              1,
+            )
+          : null,
       ],
     },
     0,
@@ -388,8 +500,21 @@ export const compilers = {
   callIndirect,
   module: compile,
   load,
+  load8SignExt,
+  load8ZeroExt,
+  load16SignExt,
+  load16ZeroExt,
+  load32SignExt,
+  load32ZeroExt,
   store,
+  store8,
+  store16,
+  store32,
   globalGet,
   globalSet,
   globalTee,
+  loop,
+  branchIf,
+  branch,
+  eqz,
 };

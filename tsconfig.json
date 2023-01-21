@@ -5,7 +5,7 @@
     "extendedDiagnostics": true,
     "skipLibCheck": false,
     "jsx": "preserve",
-    "lib": ["es2020"],
+    "lib": ["es2020", "ESNext"],
     "moduleResolution": "node",
     "strict": true,
     "strictNullChecks": true,

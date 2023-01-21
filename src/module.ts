@@ -2,10 +2,11 @@ import { compile } from './compiler';
 import {
   DataType,
   Func,
+  Instr,
   IntegerDataType,
   NumericDataType,
-  Expr,
-} from './variants';
+  PresentDataType,
+} from './nodes';
 
 export type Memory = {
   name: string;
@@ -16,7 +17,7 @@ export type Memory = {
 
 export type MemorySegment = {
   data: Uint8Array;
-  offset: Expr<IntegerDataType>;
+  offset: Instr<IntegerDataType>;
 };
 
 export type Table = {
@@ -29,13 +30,13 @@ export type Table = {
 
 export type TableSegment = {
   elems: string[];
-  offset: Expr<IntegerDataType>;
+  offset: Instr<IntegerDataType>;
 };
 
 export type Global = {
   name: string;
   dataType: DataType;
-  initVal: Expr;
+  initVal: Instr<PresentDataType>;
   mutable: boolean;
 };
 
@@ -44,6 +45,7 @@ export class Module {
   memories: Memory[] = [];
   tables: Table[] = [];
   globals: Global[] = [];
+  start: string | null = null;
 
   constructor() {}
 
@@ -84,9 +86,13 @@ export class Module {
     name: string,
     dataType: DataType,
     mutable: boolean,
-    initVal: Expr,
+    initVal: Instr<PresentDataType>,
   ) => {
     this.globals.push({ name, dataType, initVal, mutable });
+  };
+
+  setStart = (name: string | null) => {
+    this.start = name;
   };
 
   compile = () => compile(this);
