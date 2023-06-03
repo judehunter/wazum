@@ -51,7 +51,7 @@ export class Module {
 
   addFunc = (func: Func<DataType>, exported?: boolean | string) => {
     if (exported) {
-      func.exportName = typeof exported === 'boolean' ? func.name : exported;
+      func.exportName = exported && exported === true ? func.name : exported;
     }
     this.funcs.push(func);
   };
