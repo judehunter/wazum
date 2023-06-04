@@ -1,4 +1,4 @@
-import { Module } from './module';
+import { Module } from './module.js';
 import {
   Add,
   Block,
@@ -45,7 +45,7 @@ import {
   LessEqualUnsigned,
   GreaterThanSigned,
   GreaterThanUnsigned,
-} from './nodes';
+} from './nodes.js';
 
 const compileSExpression = (
   sExpr: {

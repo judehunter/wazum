@@ -1,5 +1,5 @@
-import * as w from '../methods';
-import { Module } from '../module';
+import * as w from '../methods.js';
+import { Module } from '../module.js';
 
 describe('tree creation', () => {
   test('add constant', () => {

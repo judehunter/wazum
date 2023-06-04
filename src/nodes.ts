@@ -1,4 +1,4 @@
-import { Replace } from './utils';
+import { Replace } from './utils.js';
 
 export type IntegerDataType = 'i32' | 'i64';
 export type FloatDataType = 'f32' | 'f64';

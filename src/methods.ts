@@ -1,4 +1,4 @@
-import { NoInfer } from './utils';
+import { NoInfer } from './utils.js';
 import {
   Add,
   Block,
@@ -47,7 +47,7 @@ import {
   GreaterEqualUnsigned,
   LessEqualSigned,
   LessEqualUnsigned,
-} from './nodes';
+} from './nodes.js';
 
 /**
  * Methods for the `local.get`, `local.set`, and `local.tee` instructions.

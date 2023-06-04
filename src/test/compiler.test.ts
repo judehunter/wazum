@@ -1,6 +1,6 @@
-import { compilers, compile } from '../compiler';
-import * as w from '../methods';
-import { Module } from '../module';
+import { compilers, compile } from '../compiler.js';
+import * as w from '../methods.js';
+import { Module } from '../module.js';
 
 describe('compiler', () => {
   const addFunc = () =>
