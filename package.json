@@ -6,10 +6,7 @@
   "author": "judehunter <jude@judehunter.dev>",
   "license": "Apache-2.0",
   "type": "module",
-  "source": "src/index.ts",
   "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "unpkg": "./dist/index.umd.js",
   "exports": {
     "types": "./dist/index.d.ts",
     "require": "./dist/index.js",
