@@ -28,9 +28,7 @@
     "typescript": "^4.9.4",
     "wabt": "^1.0.32"
   },
-  "dependencies": {
-    "ts-pattern": "^4.0.5"
-  },
+  "dependencies": {},
   "volta": {
     "node": "19.4.0"
   }

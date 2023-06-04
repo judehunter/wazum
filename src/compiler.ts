@@ -46,13 +46,6 @@ import {
   GreaterThanSigned,
   GreaterThanUnsigned,
 } from './nodes';
-import { match } from 'ts-pattern';
-
-// const trimdent = (str: string) => {
-//   const trimmed = str.trim();
-//   const spaces =
-//   return trimmed.replace(/^\s*(.*)$/gm, ' '.repeat(spaces) + '$1');
-// };
 
 const compileSExpression = (
   sExpr: {
