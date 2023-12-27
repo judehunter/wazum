@@ -1,5 +1,8 @@
 import { Module } from './module';
 import {
+  Clz,
+  Ctz,
+  Popcnt,
   Add,
   Block,
   Call,
@@ -18,6 +21,14 @@ import {
   NumericDataType,
   RemSigned,
   RemUnsigned,
+  And,
+  Or,
+  Xor,
+  ShiftLeft,
+  ShiftRightSigned,
+  ShiftRightUnsigned,
+  RotateLeft,
+  RotateRight,
   Store,
   Sub,
   Instr,
@@ -141,19 +152,21 @@ const globalTee = (node: GlobalTee<NumericDataType>, indent = 0) => {
 
 const makeBinaryCompiler =
   <T extends { dataType: DataType; left: Instr; right: Instr }>(op: string) =>
-  (node: T, indent = 0) => {
-    return compileSExpression(
-      {
-        fn: `${node.dataType}.${op}`,
-        blockArgs: [
-          instr(node.left, indent + 1),
-          instr(node.right, indent + 1),
-        ],
-      },
-      indent,
-    );
-  };
-
+    (node: T, indent = 0) => {
+      return compileSExpression(
+        {
+          fn: `${node.dataType}.${op}`,
+          blockArgs: [
+            instr(node.left, indent + 1),
+            instr(node.right, indent + 1),
+          ],
+        },
+        indent,
+      );
+    };
+const clz = makeBinaryCompiler<Clz<IntegerDataType>>('clz');
+const ctz = makeBinaryCompiler<Ctz<IntegerDataType>>('ctz');
+const popcnt = makeBinaryCompiler<Popcnt<IntegerDataType>>('popcnt');
 const add = makeBinaryCompiler<Add<NumericDataType>>('add');
 const sub = makeBinaryCompiler<Sub<NumericDataType>>('sub');
 const mul = makeBinaryCompiler<Mul<NumericDataType>>('mul');
@@ -161,6 +174,14 @@ const divSigned = makeBinaryCompiler<DivSigned<NumericDataType>>('div_s');
 const divUnsigned = makeBinaryCompiler<DivUnsigned<NumericDataType>>('div_u');
 const remSigned = makeBinaryCompiler<RemSigned<NumericDataType>>('rem_s');
 const remUnsigned = makeBinaryCompiler<RemUnsigned<NumericDataType>>('rem_u');
+const and = makeBinaryCompiler<And<IntegerDataType>>('and');
+const or = makeBinaryCompiler<Or<IntegerDataType>>('or');
+const xor = makeBinaryCompiler<Xor<IntegerDataType>>('xor');
+const shl = makeBinaryCompiler<ShiftLeft<IntegerDataType>>('shl');
+const shrSigned = makeBinaryCompiler<ShiftRightSigned<IntegerDataType>>('shr_s');
+const shrUnsigned = makeBinaryCompiler<ShiftRightUnsigned<IntegerDataType>>('shr_u');
+const rotl = makeBinaryCompiler<RotateLeft<IntegerDataType>>('rotl');
+const rotr = makeBinaryCompiler<RotateRight<IntegerDataType>>('rotr');
 const equal = makeBinaryCompiler<Equal<NumericDataType>>('eq');
 const greaterThanSigned =
   makeBinaryCompiler<GreaterThanSigned<NumericDataType>>('gt_s');
@@ -240,20 +261,20 @@ const drop = (node: Drop, indent = 0) => {
 
 const makeStoreCompiler =
   <T extends Store | Store8 | Store16 | Store32>(op: string) =>
-  (node: T, indent = 0) => {
-    return compileSExpression(
-      {
-        fn: `${node.dataType}.${op}`,
-        blockArgs: [
-          node.offset ? space(indent + 1) + `offset=${node.offset}` : null,
-          node.align ? space(indent + 1) + `align=${node.align}` : null,
-          instr(node.base, indent + 1),
-          instr(node.value, indent + 1),
-        ],
-      },
-      indent,
-    );
-  };
+    (node: T, indent = 0) => {
+      return compileSExpression(
+        {
+          fn: `${node.dataType}.${op}`,
+          blockArgs: [
+            node.offset ? space(indent + 1) + `offset=${node.offset}` : null,
+            node.align ? space(indent + 1) + `align=${node.align}` : null,
+            instr(node.base, indent + 1),
+            instr(node.value, indent + 1),
+          ],
+        },
+        indent,
+      );
+    };
 
 const store = makeStoreCompiler<Store>('store');
 const store8 = makeStoreCompiler<Store8>('store8');
@@ -263,31 +284,31 @@ const store32 = makeStoreCompiler<Store32>('store32');
 const makeLoadCompiler =
   <
     T extends
-      | Load
-      | Load8SignExt
-      | Load8ZeroExt
-      | Load16SignExt
-      | Load16ZeroExt
-      | Load32SignExt
-      | Load32ZeroExt,
+    | Load
+    | Load8SignExt
+    | Load8ZeroExt
+    | Load16SignExt
+    | Load16ZeroExt
+    | Load32SignExt
+    | Load32ZeroExt,
   >(
     op: string,
   ) =>
-  (node: T, indent = 0) => {
-    return compileSExpression(
-      {
-        fn: `${node.dataType}.${op}`,
-        blockArgs: [
-          node.offset ? space(indent + 1) + `offset=${node.offset}` : null,
-          node.align !== null
-            ? space(indent + 1) + `align=${node.align}`
-            : null,
-          instr(node.base, indent + 1),
-        ],
-      },
-      indent,
-    );
-  };
+    (node: T, indent = 0) => {
+      return compileSExpression(
+        {
+          fn: `${node.dataType}.${op}`,
+          blockArgs: [
+            node.offset ? space(indent + 1) + `offset=${node.offset}` : null,
+            node.align !== null
+              ? space(indent + 1) + `align=${node.align}`
+              : null,
+            instr(node.base, indent + 1),
+          ],
+        },
+        indent,
+      );
+    };
 
 const load = makeLoadCompiler<Load>('load');
 const load8SignExt = makeLoadCompiler<Load8SignExt>('load8_s');
@@ -348,6 +369,9 @@ const instrTypesCompilers = {
   localGet,
   localSet,
   localTee,
+  clz,
+  ctz,
+  popcnt,
   add,
   sub,
   mul,
@@ -355,6 +379,14 @@ const instrTypesCompilers = {
   divUnsigned,
   remSigned,
   remUnsigned,
+  and,
+  or,
+  xor,
+  shl,
+  shrSigned,
+  shrUnsigned,
+  rotl,
+  rotr,
   constant,
   call,
   callIndirect,
@@ -424,9 +456,9 @@ export const compile = (m: Module) => {
                 blockArgs: [
                   instr(seg.offset, 2),
                   space(2) +
-                    `"${[...seg.data]
-                      .map((d) => '\\' + d.toString(16))
-                      .join('')}"`,
+                  `"${[...seg.data]
+                    .map((d) => '\\' + d.toString(16))
+                    .join('')}"`,
                 ],
               },
               1,
@@ -507,12 +539,12 @@ export const compile = (m: Module) => {
         ),
         m.start !== null
           ? compileSExpression(
-              {
-                fn: 'start',
-                inlineArgs: [`$${m.start}`],
-              },
-              1,
-            )
+            {
+              fn: 'start',
+              inlineArgs: [`$${m.start}`],
+            },
+            1,
+          )
           : null,
       ],
     },

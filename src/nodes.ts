@@ -65,6 +65,36 @@ export type GlobalTee<T extends NumericDataType = NumericDataType> = {
   returnType: T;
 };
 /**
+ * The node representing the `clz` instruction.
+ */
+export type Clz<T extends IntegerDataType = IntegerDataType> = {
+  __nodeType: 'clz';
+  dataType: T;
+  left: Instr<T>;
+  right: Instr<T>;
+  returnType: T;
+};
+/**
+ * The node representing the `ctz` instruction.
+ */
+export type Ctz<T extends IntegerDataType = IntegerDataType> = {
+  __nodeType: 'ctz';
+  dataType: T;
+  left: Instr<T>;
+  right: Instr<T>;
+  returnType: T;
+};
+/**
+ * The node representing the `popcnt` instruction.
+ */
+export type Popcnt<T extends IntegerDataType = IntegerDataType> = {
+  __nodeType: 'popcnt';
+  dataType: T;
+  left: Instr<T>;
+  right: Instr<T>;
+  returnType: T;
+};
+/**
  * The node representing the `add` instruction.
  */
 export type Add<T extends NumericDataType = NumericDataType> = {
@@ -129,6 +159,86 @@ export type RemSigned<T extends NumericDataType = NumericDataType> = {
  */
 export type RemUnsigned<T extends NumericDataType = NumericDataType> = {
   __nodeType: 'remUnsigned';
+  dataType: T;
+  left: Instr<T>;
+  right: Instr<T>;
+  returnType: T;
+};
+/**
+ * The node representing the `and` instruction.
+ */
+export type And<T extends IntegerDataType = IntegerDataType> = {
+  __nodeType: 'and';
+  dataType: T;
+  left: Instr<T>;
+  right: Instr<T>;
+  returnType: T;
+};
+/**
+ * The node representing the `or` instruction.
+ */
+export type Or<T extends IntegerDataType = IntegerDataType> = {
+  __nodeType: 'or';
+  dataType: T;
+  left: Instr<T>;
+  right: Instr<T>;
+  returnType: T;
+};
+/**
+ * The node representing the `xor` instruction.
+ */
+export type Xor<T extends IntegerDataType = IntegerDataType> = {
+  __nodeType: 'xor';
+  dataType: T;
+  left: Instr<T>;
+  right: Instr<T>;
+  returnType: T;
+};
+/**
+ * The node representing the `shl` instruction.
+ */
+export type ShiftLeft<T extends IntegerDataType = IntegerDataType> = {
+  __nodeType: 'shl';
+  dataType: T;
+  left: Instr<T>;
+  right: Instr<T>;
+  returnType: T;
+};
+/**
+ * The node representing the `shr_s` instruction.
+ */
+export type ShiftRightSigned<T extends IntegerDataType = IntegerDataType> = {
+  __nodeType: 'shrSigned';
+  dataType: T;
+  left: Instr<T>;
+  right: Instr<T>;
+  returnType: T;
+};
+/**
+ * The node representing the `shr_u` instruction.
+ */
+export type ShiftRightUnsigned<T extends IntegerDataType = IntegerDataType> = {
+  __nodeType: 'shrUnsigned';
+  dataType: T;
+  left: Instr<T>;
+  right: Instr<T>;
+  returnType: T;
+};
+/**
+ * The node representing the `rotl` instruction.
+ */
+export type RotateLeft<T extends IntegerDataType = IntegerDataType> = {
+  __nodeType: 'rotl';
+  dataType: T;
+  left: Instr<T>;
+  right: Instr<T>;
+  returnType: T;
+};
+/**
+ * The node representing the `rotr` instruction.
+ */
+export type RotateRight<T extends IntegerDataType = IntegerDataType> = {
+  __nodeType: 'rotr';
   dataType: T;
   left: Instr<T>;
   right: Instr<T>;
@@ -442,6 +552,9 @@ type InstrList =
   | Call
   | CallIndirect
   | Const
+  | Clz
+  | Ctz
+  | Popcnt
   | Add
   | Sub
   | Mul
@@ -449,6 +562,14 @@ type InstrList =
   | DivUnsigned
   | RemSigned
   | RemUnsigned
+  | And
+  | Or
+  | Xor
+  | ShiftLeft
+  | ShiftRightSigned
+  | ShiftRightUnsigned
+  | RotateLeft
+  | RotateRight
   | Load
   | Load8SignExt
   | Load16SignExt
@@ -472,8 +593,8 @@ type InstrList =
 
 type FilterInstrByDataType<I extends { returnType: any }, DT> = I extends any
   ? I['returnType'] & DT extends never
-    ? never
-    : I
+  ? never
+  : I
   : never;
 
 /**

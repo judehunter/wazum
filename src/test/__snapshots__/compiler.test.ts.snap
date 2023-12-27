@@ -22,6 +22,13 @@ exports[`compiler add node 1`] = `
 )"
 `;
 
+exports[`compiler and node 1`] = `
+"(i32.and
+ (i32.const 15790320)
+ (i32.const 986895)
+)"
+`;
+
 exports[`compiler call node 1`] = `
 "(call $abc
  (i32.const 10)
@@ -40,7 +47,21 @@ exports[`compiler call_indirect node 1`] = `
 )"
 `;
 
+exports[`compiler clz node 1`] = `
+"(i32.clz
+ (i32.const 1)
+ (i32.const 2)
+)"
+`;
+
 exports[`compiler const node 1`] = `"(f32.const 1.5)"`;
+
+exports[`compiler ctz node 1`] = `
+"(i32.ctz
+ (i32.const 1)
+ (i32.const 2)
+)"
+`;
 
 exports[`compiler div_s node 1`] = `
 "(i32.div_s
@@ -71,6 +92,20 @@ exports[`compiler mul node 1`] = `
 )"
 `;
 
+exports[`compiler or node 1`] = `
+"(i32.or
+ (i32.const 15790320)
+ (i32.const 986895)
+)"
+`;
+
+exports[`compiler popcnt node 1`] = `
+"(i32.popcnt
+ (i32.const 1)
+ (i32.const 2)
+)"
+`;
+
 exports[`compiler rem_s node 1`] = `
 "(i32.rem_s
  (i32.const 10)
@@ -85,9 +120,51 @@ exports[`compiler rem_u node 1`] = `
 )"
 `;
 
+exports[`compiler rotl node 1`] = `
+"(i32.rotl
+ (i32.const 20)
+ (i32.const 2)
+)"
+`;
+
+exports[`compiler rotr node 1`] = `
+"(i32.rotr
+ (i32.const 20)
+ (i32.const 2)
+)"
+`;
+
+exports[`compiler shl node 1`] = `
+"(i32.shl
+ (i32.const 10)
+ (i32.const 5)
+)"
+`;
+
+exports[`compiler shr_s node 1`] = `
+"(i32.shr_s
+ (i32.const 20)
+ (i32.const 2)
+)"
+`;
+
+exports[`compiler shr_u node 1`] = `
+"(i32.shr_u
+ (i32.const 20)
+ (i32.const 2)
+)"
+`;
+
 exports[`compiler sub node 1`] = `
 "(i32.sub
  (i32.const 10)
  (i32.const 5)
+)"
+`;
+
+exports[`compiler xor node 1`] = `
+"(i32.xor
+ (i32.const 15790320)
+ (i32.const 986895)
 )"
 `;
