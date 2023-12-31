@@ -1,20 +1,22 @@
 {
   "compilerOptions": {
-    "diagnostics": true,
+    // These both need to be true for Node ESM compatibility.
     "esModuleInterop": true,
-    "extendedDiagnostics": true,
-    "skipLibCheck": false,
-    "jsx": "preserve",
-    "lib": ["es2020", "ESNext"],
-    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    // DOM types are needed for WebAssembly even in Node.js, for now (remove
+    // this later). https://github.com/microsoft/TypeScript-DOM-lib-generator/issues/826
+    "lib": ["es2020", "ESNext", "DOM"],
+    "moduleResolution": "nodenext",
+    "module": "ESNext",
+    "target": "ESNext",
+    "outDir": "./dist",
+    "declaration": true,
+
     "strict": true,
     "strictNullChecks": true,
     "strictFunctionTypes": true,
-    "strictPropertyInitialization": true,
-    "outDir": "./build",
-    "module": "ESNext",
-    "target": "ESNext"
+    "strictPropertyInitialization": true
   },
-  "include": ["src/index.ts", "src/**/*.ts"],
+  "include": ["src/**/*.ts"],
   "exclude": ["src/test/**/*.*"]
 }

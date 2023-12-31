@@ -1,4 +1,4 @@
-import { w } from '../index';
+import * as w from '../index.js';
 
 // define where the data part starts
 const DATA_START = 64;
@@ -222,7 +222,8 @@ const compile = (input: string) => {
 };
 
 const runProgram = async (program: string) => {
-  const wabt = await (require('wabt') as typeof import('wabt'))();
+  const _wabt = (await import('wabt')).default;
+  const wabt = await _wabt(); // Why the hell would someone export wabt like this.
   const compiled = compile(program);
   // console.log(compiled);
   const m = wabt.parseWat('', compiled);

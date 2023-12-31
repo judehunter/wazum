@@ -16,21 +16,24 @@ It's an alternative to Binaryen.js with the following benefits:
 
 ✨ Stellar documentation, QoL features, overall **great DX**. Give it a try!
 
-*note: the above is the end goal, Wazum is still a work in progress.*
+_note: the above is the end goal, Wazum is still a work in progress._
 
 ```ts
 // Try Me!
-import { w } from 'wazum';
+import * as w from 'wazum';
 const m = new w.Module();
 
 const add = w.func(
   'add',
   {
-    params: [['i32', 'a'], ['i32', 'b']],
+    params: [
+      ['i32', 'a'],
+      ['i32', 'b'],
+    ],
     returnType: 'i32',
-    locals: []
+    locals: [],
   },
-  w.add('i32', w.local.get('i32', 'a'), w.local.get('i32', 'b'))
+  w.add('i32', w.local.get('i32', 'a'), w.local.get('i32', 'b')),
 );
 
 m.addFunc(add);
@@ -38,16 +41,19 @@ console.log(m.compile());
 ```
 
 ### Getting Started
+
 ```bash
 yarn add wazum
-// or
-npm i wazum
+# or
+npm install wazum
 ```
 
 You'll find all the methods and types under:
+
 ```ts
-import { w } from 'wazum';
+import * as w from 'wazum';
 w. // let IntelliSense guide you!
 ```
-<!-- 
+
+<!--
 For more information, check out the [**docs**](https://judehunter.dev/wazum/docs). -->

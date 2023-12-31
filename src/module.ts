@@ -1,4 +1,4 @@
-import { compile } from './compiler';
+import { compile } from './compiler.js';
 import {
   DataType,
   Func,
@@ -6,7 +6,7 @@ import {
   IntegerDataType,
   NumericDataType,
   PresentDataType,
-} from './nodes';
+} from './nodes.js';
 
 export type Memory = {
   name: string;

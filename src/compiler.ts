@@ -1,4 +1,4 @@
-import { Module } from './module';
+import { Module } from './module.js';
 import {
   Clz,
   Ctz,
@@ -56,14 +56,7 @@ import {
   LessEqualUnsigned,
   GreaterThanSigned,
   GreaterThanUnsigned,
-} from './nodes';
-import { match } from 'ts-pattern';
-
-// const trimdent = (str: string) => {
-//   const trimmed = str.trim();
-//   const spaces =
-//   return trimmed.replace(/^\s*(.*)$/gm, ' '.repeat(spaces) + '$1');
-// };
+} from './nodes.js';
 
 const compileSExpression = (
   sExpr: {
