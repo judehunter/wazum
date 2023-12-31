@@ -1,5 +1,8 @@
 import { NoInfer } from './utils';
 import {
+  Clz,
+  Ctz,
+  Popcnt,
   Add,
   Block,
   Call,
@@ -19,6 +22,14 @@ import {
   NumericDataType,
   RemSigned,
   RemUnsigned,
+  And,
+  Or,
+  Xor,
+  ShiftLeft,
+  ShiftRightSigned,
+  ShiftRightUnsigned,
+  RotateLeft,
+  RotateRight,
   Store,
   Sub,
   Instr,
@@ -191,6 +202,75 @@ export const global = {
 };
 
 /**
+ * Creates a node for the `clz` instruction.
+ *
+ * When compiled, results in
+ * ```wasm
+ * ([dataType].clz [left] [right])
+ * ```
+ * @param dataType the data type of both operands and of the result type.
+ * @param left the value `Instr` node of the left operand.
+ * @param right the value `Instr` node of the right operand.
+ */
+export const clz = <T extends IntegerDataType>(
+  dataType: T,
+  left: Instr<NoInfer<T>>,
+  right: Instr<NoInfer<T>>,
+): Clz<T> => ({
+  __nodeType: 'clz',
+  dataType,
+  left,
+  right,
+  returnType: dataType,
+});
+
+/**
+ * Creates a node for the `ctz` instruction.
+ *
+ * When compiled, results in
+ * ```wasm
+ * ([dataType].ctz [left] [right])
+ * ```
+ * @param dataType the data type of both operands and of the result type.
+ * @param left the value `Instr` node of the left operand.
+ * @param right the value `Instr` node of the right operand.
+ */
+export const ctz = <T extends IntegerDataType>(
+  dataType: T,
+  left: Instr<NoInfer<T>>,
+  right: Instr<NoInfer<T>>,
+): Ctz<T> => ({
+  __nodeType: 'ctz',
+  dataType,
+  left,
+  right,
+  returnType: dataType,
+});
+
+/**
+ * Creates a node for the `popcnt` instruction.
+ *
+ * When compiled, results in
+ * ```wasm
+ * ([dataType].popcnt [left] [right])
+ * ```
+ * @param dataType the data type of both operands and of the result type.
+ * @param left the value `Instr` node of the left operand.
+ * @param right the value `Instr` node of the right operand.
+ */
+export const popcnt = <T extends IntegerDataType>(
+  dataType: T,
+  left: Instr<NoInfer<T>>,
+  right: Instr<NoInfer<T>>,
+): Popcnt<T> => ({
+  __nodeType: 'popcnt',
+  dataType,
+  left,
+  right,
+  returnType: dataType,
+});
+
+/**
  * Creates a node for the `add` instruction.
  *
  * When compiled, results in
@@ -345,6 +425,190 @@ export const remUnsigned = <T extends IntegerDataType>(
   right: Instr<NoInfer<T>>,
 ): RemUnsigned<T> => ({
   __nodeType: 'remUnsigned',
+  dataType,
+  left,
+  right,
+  returnType: dataType,
+});
+
+/**
+ * Creates a node for the `and` instruction.
+ *
+ * When compiled, results in
+ * ```wasm
+ * ([dataType].and [left] [right])
+ * ```
+ * @param dataType the data type of both operands and of the result type.
+ * @param left the value `Instr` node of the left operand.
+ * @param right the value `Instr` node of the right operand.
+ */
+export const and = <T extends IntegerDataType>(
+  dataType: T,
+  left: Instr<NoInfer<T>>,
+  right: Instr<NoInfer<T>>,
+): And<T> => ({
+  __nodeType: 'and',
+  dataType,
+  left,
+  right,
+  returnType: dataType,
+});
+
+/**
+ * Creates a node for the `or` instruction.
+ *
+ * When compiled, results in
+ * ```wasm
+ * ([dataType].and [left] [right])
+ * ```
+ * @param dataType the data type of both operands and of the result type.
+ * @param left the value `Instr` node of the left operand.
+ * @param right the value `Instr` node of the right operand.
+ */
+export const or = <T extends IntegerDataType>(
+  dataType: T,
+  left: Instr<NoInfer<T>>,
+  right: Instr<NoInfer<T>>,
+): Or<T> => ({
+  __nodeType: 'or',
+  dataType,
+  left,
+  right,
+  returnType: dataType,
+});
+
+/**
+ * Creates a node for the `xor` instruction.
+ *
+ * When compiled, results in
+ * ```wasm
+ * ([dataType].xor [left] [right])
+ * ```
+ * @param dataType the data type of both operands and of the result type.
+ * @param left the value `Instr` node of the left operand.
+ * @param right the value `Instr` node of the right operand.
+ */
+export const xor = <T extends IntegerDataType>(
+  dataType: T,
+  left: Instr<NoInfer<T>>,
+  right: Instr<NoInfer<T>>,
+): Xor<T> => ({
+  __nodeType: 'xor',
+  dataType,
+  left,
+  right,
+  returnType: dataType,
+});
+
+/**
+ * Creates a node for the `shl` instruction.
+ *
+ * When compiled, results in
+ * ```wasm
+ * ([dataType].shl [left] [right])
+ * ```
+ * @param dataType the data type of both operands and of the result type.
+ * @param left the value `Instr` node of the left operand.
+ * @param right the value `Instr` node of the right operand.
+ */
+export const shl = <T extends IntegerDataType>(
+  dataType: T,
+  left: Instr<NoInfer<T>>,
+  right: Instr<NoInfer<T>>,
+): ShiftLeft<T> => ({
+  __nodeType: 'shl',
+  dataType,
+  left,
+  right,
+  returnType: dataType,
+});
+
+/**
+ * Creates a node for the `shr_s` instruction.
+ *
+ * When compiled, results in
+ * ```wasm
+ * ([dataType].shr_s [left] [right])
+ * ```
+ * @param dataType the data type of both operands and of the result type.
+ * @param left the value `Instr` node of the left operand.
+ * @param right the value `Instr` node of the right operand.
+ */
+export const shrSigned = <T extends IntegerDataType>(
+  dataType: T,
+  left: Instr<NoInfer<T>>,
+  right: Instr<NoInfer<T>>,
+): ShiftRightSigned<T> => ({
+  __nodeType: 'shrSigned',
+  dataType,
+  left,
+  right,
+  returnType: dataType,
+});
+
+/**
+ * Creates a node for the `shr_u` instruction.
+ *
+ * When compiled, results in
+ * ```wasm
+ * ([dataType].shr_u [left] [right])
+ * ```
+ * @param dataType the data type of both operands and of the result type.
+ * @param left the value `Instr` node of the left operand.
+ * @param right the value `Instr` node of the right operand.
+ */
+export const shrUnsigned = <T extends IntegerDataType>(
+  dataType: T,
+  left: Instr<NoInfer<T>>,
+  right: Instr<NoInfer<T>>,
+): ShiftRightUnsigned<T> => ({
+  __nodeType: 'shrUnsigned',
+  dataType,
+  left,
+  right,
+  returnType: dataType,
+});
+
+/**
+ * Creates a node for the `rotl` instruction.
+ *
+ * When compiled, results in
+ * ```wasm
+ * ([dataType].rotl [left] [right])
+ * ```
+ * @param dataType the data type of both operands and of the result type.
+ * @param left the value `Instr` node of the left operand.
+ * @param right the value `Instr` node of the right operand.
+ */
+export const rotl = <T extends IntegerDataType>(
+  dataType: T,
+  left: Instr<NoInfer<T>>,
+  right: Instr<NoInfer<T>>,
+): RotateLeft<T> => ({
+  __nodeType: 'rotl',
+  dataType,
+  left,
+  right,
+  returnType: dataType,
+});
+
+/**
+ * Creates a node for the `rotr` instruction.
+ *
+ * When compiled, results in
+ * ```wasm
+ * ([dataType].rotr [left] [right])
+ * ```
+ * @param dataType the data type of both operands and of the result type.
+ * @param left the value `Instr` node of the left operand.
+ * @param right the value `Instr` node of the right operand.
+ */
+export const rotr = <T extends IntegerDataType>(
+  dataType: T,
+  left: Instr<NoInfer<T>>,
+  right: Instr<NoInfer<T>>,
+): RotateRight<T> => ({
+  __nodeType: 'rotr',
   dataType,
   left,
   right,

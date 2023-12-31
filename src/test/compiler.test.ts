@@ -17,6 +17,30 @@ describe('compiler', () => {
       w.add('i32', w.local.get('i32', 'a'), w.local.get('i32', 'b')),
     );
 
+  test('clz node', () => {
+    expect(
+      compilers.clz(
+        w.clz('i32', w.constant('i32', 1), w.constant('i32', 2)),
+      ),
+    ).toMatchSnapshot();
+  });
+
+  test('ctz node', () => {
+    expect(
+      compilers.ctz(
+        w.ctz('i32', w.constant('i32', 1), w.constant('i32', 2)),
+      ),
+    ).toMatchSnapshot();
+  });
+
+  test('popcnt node', () => {
+    expect(
+      compilers.popcnt(
+        w.popcnt('i32', w.constant('i32', 1), w.constant('i32', 2)),
+      ),
+    ).toMatchSnapshot();
+  });
+  
   test('add function (local.get, i32.add, exported func)', () => {
     const m = new Module();
     m.addFunc(addFunc(), true);
@@ -84,6 +108,70 @@ describe('compiler', () => {
     expect(
       compilers.remUnsigned(
         w.remUnsigned('i32', w.constant('i32', 10), w.constant('i32', 5)),
+      ),
+    ).toMatchSnapshot();
+  });
+
+  test('and node', () => {
+    expect(
+      compilers.and(
+        w.and('i32', w.constant('i32', 0xf0f0f0), w.constant('i32', 0x0f0f0f)),
+      ),
+    ).toMatchSnapshot();
+  });
+
+  test('or node', () => {
+    expect(
+      compilers.or(
+        w.or('i32', w.constant('i32', 0xf0f0f0), w.constant('i32', 0x0f0f0f)),
+      ),
+    ).toMatchSnapshot();
+  });
+
+  test('xor node', () => {
+    expect(
+      compilers.xor(
+        w.xor('i32', w.constant('i32', 0xf0f0f0), w.constant('i32', 0x0f0f0f)),
+      ),
+    ).toMatchSnapshot();
+  });
+
+  test('shl node', () => {
+    expect(
+      compilers.shl(
+        w.shl('i32', w.constant('i32', 10), w.constant('i32', 5)),
+      ),
+    ).toMatchSnapshot();
+  });
+
+  test('shr_s node', () => {
+    expect(
+      compilers.shrSigned(
+        w.shrSigned('i32', w.constant('i32', 20), w.constant('i32', 2)),
+      ),
+    ).toMatchSnapshot();
+  });
+
+  test('shr_u node', () => {
+    expect(
+      compilers.shrUnsigned(
+        w.shrUnsigned('i32', w.constant('i32', 20), w.constant('i32', 2)),
+      ),
+    ).toMatchSnapshot();
+  });
+
+  test('rotr node', () => {
+    expect(
+      compilers.rotr(
+        w.rotr('i32', w.constant('i32', 20), w.constant('i32', 2)),
+      ),
+    ).toMatchSnapshot();
+  });
+
+  test('rotl node', () => {
+    expect(
+      compilers.rotl(
+        w.rotl('i32', w.constant('i32', 20), w.constant('i32', 2)),
       ),
     ).toMatchSnapshot();
   });
