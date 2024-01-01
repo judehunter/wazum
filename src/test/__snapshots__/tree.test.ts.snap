@@ -24,23 +24,25 @@ exports[`tree creation addFunc 1`] = `
 [
   {
     "__nodeType": "func",
-    "body": {
-      "__nodeType": "add",
-      "dataType": "i32",
-      "left": {
-        "__nodeType": "localGet",
+    "body": [
+      {
+        "__nodeType": "add",
         "dataType": "i32",
-        "name": "a",
+        "left": {
+          "__nodeType": "localGet",
+          "dataType": "i32",
+          "name": "a",
+          "returnType": "i32",
+        },
         "returnType": "i32",
+        "right": {
+          "__nodeType": "localGet",
+          "dataType": "i32",
+          "name": "b",
+          "returnType": "i32",
+        },
       },
-      "returnType": "i32",
-      "right": {
-        "__nodeType": "localGet",
-        "dataType": "i32",
-        "name": "b",
-        "returnType": "i32",
-      },
-    },
+    ],
     "dataType": "i32",
     "exportName": null,
     "locals": [],
@@ -58,23 +60,25 @@ exports[`tree creation addFunc 1`] = `
   },
   {
     "__nodeType": "func",
-    "body": {
-      "__nodeType": "add",
-      "dataType": "i32",
-      "left": {
-        "__nodeType": "localGet",
+    "body": [
+      {
+        "__nodeType": "add",
         "dataType": "i32",
-        "name": "a",
+        "left": {
+          "__nodeType": "localGet",
+          "dataType": "i32",
+          "name": "a",
+          "returnType": "i32",
+        },
         "returnType": "i32",
+        "right": {
+          "__nodeType": "localGet",
+          "dataType": "i32",
+          "name": "b",
+          "returnType": "i32",
+        },
       },
-      "returnType": "i32",
-      "right": {
-        "__nodeType": "localGet",
-        "dataType": "i32",
-        "name": "b",
-        "returnType": "i32",
-      },
-    },
+    ],
     "dataType": "i32",
     "exportName": "add",
     "locals": [],
@@ -92,23 +96,25 @@ exports[`tree creation addFunc 1`] = `
   },
   {
     "__nodeType": "func",
-    "body": {
-      "__nodeType": "add",
-      "dataType": "i32",
-      "left": {
-        "__nodeType": "localGet",
+    "body": [
+      {
+        "__nodeType": "add",
         "dataType": "i32",
-        "name": "a",
+        "left": {
+          "__nodeType": "localGet",
+          "dataType": "i32",
+          "name": "a",
+          "returnType": "i32",
+        },
         "returnType": "i32",
+        "right": {
+          "__nodeType": "localGet",
+          "dataType": "i32",
+          "name": "b",
+          "returnType": "i32",
+        },
       },
-      "returnType": "i32",
-      "right": {
-        "__nodeType": "localGet",
-        "dataType": "i32",
-        "name": "b",
-        "returnType": "i32",
-      },
-    },
+    ],
     "dataType": "i32",
     "exportName": "addi32",
     "locals": [],
@@ -130,63 +136,65 @@ exports[`tree creation addFunc 1`] = `
 exports[`tree creation function 1`] = `
 {
   "__nodeType": "func",
-  "body": {
-    "__nodeType": "block",
-    "body": [
-      {
-        "__nodeType": "drop",
-        "returnType": "none",
-        "value": {
-          "__nodeType": "add",
-          "dataType": "i32",
-          "left": {
-            "__nodeType": "localGet",
+  "body": [
+    {
+      "__nodeType": "block",
+      "body": [
+        {
+          "__nodeType": "drop",
+          "returnType": "none",
+          "value": {
+            "__nodeType": "add",
             "dataType": "i32",
-            "name": "a",
+            "left": {
+              "__nodeType": "localGet",
+              "dataType": "i32",
+              "name": "a",
+              "returnType": "i32",
+            },
             "returnType": "i32",
-          },
-          "returnType": "i32",
-          "right": {
-            "__nodeType": "localGet",
-            "dataType": "i32",
-            "name": "b",
-            "returnType": "i32",
-          },
-        },
-      },
-      {
-        "__nodeType": "localSet",
-        "dataType": "i32",
-        "name": "ret",
-        "returnType": "none",
-        "value": {
-          "__nodeType": "add",
-          "dataType": "i32",
-          "left": {
-            "__nodeType": "localGet",
-            "dataType": "i32",
-            "name": "a",
-            "returnType": "i32",
-          },
-          "returnType": "i32",
-          "right": {
-            "__nodeType": "localGet",
-            "dataType": "i32",
-            "name": "b",
-            "returnType": "i32",
+            "right": {
+              "__nodeType": "localGet",
+              "dataType": "i32",
+              "name": "b",
+              "returnType": "i32",
+            },
           },
         },
-      },
-      {
-        "__nodeType": "localGet",
-        "dataType": "i32",
-        "name": "ret",
-        "returnType": "i32",
-      },
-    ],
-    "name": null,
-    "returnType": "i32",
-  },
+        {
+          "__nodeType": "localSet",
+          "dataType": "i32",
+          "name": "ret",
+          "returnType": "none",
+          "value": {
+            "__nodeType": "add",
+            "dataType": "i32",
+            "left": {
+              "__nodeType": "localGet",
+              "dataType": "i32",
+              "name": "a",
+              "returnType": "i32",
+            },
+            "returnType": "i32",
+            "right": {
+              "__nodeType": "localGet",
+              "dataType": "i32",
+              "name": "b",
+              "returnType": "i32",
+            },
+          },
+        },
+        {
+          "__nodeType": "localGet",
+          "dataType": "i32",
+          "name": "ret",
+          "returnType": "i32",
+        },
+      ],
+      "name": null,
+      "returnType": "i32",
+    },
+  ],
   "dataType": "i32",
   "exportName": null,
   "locals": [

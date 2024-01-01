@@ -16,6 +16,20 @@ describe('compiler', () => {
       },
       w.add('i32', w.local.get('i32', 'a'), w.local.get('i32', 'b')),
     );
+  
+  const addFuncImport = () =>
+    w.funcImport(
+      'add',
+      "env",
+      "host_add",
+      {
+        params: [
+          ['i32', 'a'],
+          ['i32', 'b'],
+        ],
+        returnType: 'i32',
+      }
+    );
 
   test('clz node', () => {
     expect(
@@ -44,6 +58,13 @@ describe('compiler', () => {
   test('add function (local.get, i32.add, exported func)', () => {
     const m = new Module();
     m.addFunc(addFunc(), true);
+
+    expect(compile(m)).toMatchSnapshot();
+  });
+
+  test('add function import', () => {
+    const m = new Module();
+    m.addFuncImport(addFuncImport());
 
     expect(compile(m)).toMatchSnapshot();
   });
