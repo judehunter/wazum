@@ -686,26 +686,26 @@ export const func = <T extends DataType>(
  * )
  * ```
  * @param name
- * @param signature.params a list of `[type, name]` tuples for each param.
- * @param signature.returnType the return type of the function. Has to be the same as the `returnType` of `body`.
  * @param importName the name of the function to be imported.
  * @param importPath the path for the function to be imported from.
+ * @param signature.params a list of `[type, name]` tuples for each param.
+ * @param signature.returnType the return type of the function. Has to be the same as the `returnType` of `body`.
  */
 export const funcImport = <T extends DataType>(
   name: string,
+  importPath: string,
+  importName: string,
   signature: {
     params: [type: NumericDataType, name: string][];
     returnType: T;
-  },
-  importPath: string,
-  importName: string
+  }
 ): FuncImport<T> => ({
   __nodeType: 'funcImport',
   name,
-  params: signature.params,
-  dataType: signature.returnType,
   importPath,
-  importName
+  importName,
+  params: signature.params,
+  dataType: signature.returnType
 });
 
 /**
