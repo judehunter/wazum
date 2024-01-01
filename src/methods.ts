@@ -58,6 +58,7 @@ import {
   GreaterEqualUnsigned,
   LessEqualSigned,
   LessEqualUnsigned,
+  FuncImport,
 } from './nodes';
 
 /**
@@ -652,7 +653,7 @@ export const constant = <T extends NumericDataType>(
  * @param signature.params a list of `[type, name]` tuples for each param.
  * @param signature.locals a list of `[type, name]` tuples for each local.
  * @param signature.returnType the return type of the function. Has to be the same as the `returnType` of `body`.
- * @param body the value `Instr` node to be returned.
+ * @param body the list of `Instr` nodes to be returned.
  */
 export const func = <T extends DataType>(
   name: string,
@@ -661,15 +662,50 @@ export const func = <T extends DataType>(
     locals: [type: NumericDataType, name: string][];
     returnType: T;
   },
-  body: Instr<NoInfer<T>>,
+  ...body: Instr<NoInfer<T>>[]
 ): Func<T> => ({
   __nodeType: 'func',
   name,
   params: signature.params,
   locals: signature.locals,
-  body,
   dataType: signature.returnType,
   exportName: null,
+  body
+});
+
+/**
+ * Creates a node for the `funcImport` instruction.
+ * Note: to add the function import to your module, use `w.addFuncImport`.
+ *
+ * When compiled, results in
+ * ```wasm
+ * (import "[importPath]" "[importName]"
+ *  (func $[name]
+ *   (param [param type]) ;; for each param in signature.params
+ *   (result [signature.returnType]) ;; if returnType is not `none`
+ * )
+ * ```
+ * @param name
+ * @param signature.params a list of `[type, name]` tuples for each param.
+ * @param signature.returnType the return type of the function. Has to be the same as the `returnType` of `body`.
+ * @param importName the name of the function to be imported.
+ * @param importPath the path for the function to be imported from.
+ */
+export const funcImport = <T extends DataType>(
+  name: string,
+  signature: {
+    params: [type: NumericDataType, name: string][];
+    returnType: T;
+  },
+  importPath: string,
+  importName: string
+): FuncImport<T> => ({
+  __nodeType: 'funcImport',
+  name,
+  params: signature.params,
+  dataType: signature.returnType,
+  importPath,
+  importName
 });
 
 /**

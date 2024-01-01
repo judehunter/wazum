@@ -253,9 +253,21 @@ export type Func<T extends DataType = DataType> = {
   name: string;
   params: [type: NumericDataType, name: string][];
   locals: [type: NumericDataType, name: string][];
-  body: Instr<T>;
   dataType: T;
   exportName: string | null;
+  body: Instr<T>[];
+};
+/**
+ * The node representing the `func` declaration.
+ * Note: This is not an instruction node.
+ */
+export type FuncImport<T extends DataType = DataType> = {
+  __nodeType: 'funcImport';
+  name: string;
+  params: [type: NumericDataType, name: string][];
+  dataType: T;
+  importPath: string;
+  importName: string;
 };
 /**
  * The node representing the `call` instruction.
