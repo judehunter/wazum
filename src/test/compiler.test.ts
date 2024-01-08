@@ -20,9 +20,9 @@ describe('compiler', () => {
   const addFuncImport = () =>
     w.funcImport(
       'add',
-      "env",
-      "host_add",
       {
+        importPath: "env",
+        importName: "host_add",
         params: [
           ['i32', 'a'],
           ['i32', 'b'],

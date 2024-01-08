@@ -693,17 +693,17 @@ export const func = <T extends DataType>(
  */
 export const funcImport = <T extends DataType>(
   name: string,
-  importPath: string,
-  importName: string,
   signature: {
+    importPath: string,
+    importName: string,
     params: [type: NumericDataType, name: string][];
     returnType: T;
   }
 ): FuncImport<T> => ({
   __nodeType: 'funcImport',
   name,
-  importPath,
-  importName,
+  importPath: signature.importPath,
+  importName: signature.importName,
   params: signature.params,
   dataType: signature.returnType
 });
