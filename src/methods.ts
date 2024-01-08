@@ -58,6 +58,7 @@ import {
   GreaterEqualUnsigned,
   LessEqualSigned,
   LessEqualUnsigned,
+  FuncImport,
 } from './nodes';
 
 /**
@@ -670,6 +671,41 @@ export const func = <T extends DataType>(
   body,
   dataType: signature.returnType,
   exportName: null,
+});
+
+/**
+ * Creates a node for the `funcImport` instruction.
+ * Note: to add the function import to your module, use `w.addFuncImport`.
+ *
+ * When compiled, results in
+ * ```wasm
+ * (import "[importPath]" "[importName]"
+ *  (func $[name]
+ *   (param [param type]) ;; for each param in signature.params
+ *   (result [signature.returnType]) ;; if returnType is not `none`
+ * )
+ * ```
+ * @param name
+ * @param importName the name of the function to be imported.
+ * @param importPath the path for the function to be imported from.
+ * @param signature.params a list of `[type, name]` tuples for each param.
+ * @param signature.returnType the return type of the function. Has to be the same as the `returnType` of `body`.
+ */
+export const funcImport = <T extends DataType>(
+  name: string,
+  importPath: string,
+  importName: string,
+  signature: {
+    params: [type: NumericDataType, name: string][];
+    returnType: T;
+  }
+): FuncImport<T> => ({
+  __nodeType: 'funcImport',
+  name,
+  importPath,
+  importName,
+  params: signature.params,
+  dataType: signature.returnType
 });
 
 /**

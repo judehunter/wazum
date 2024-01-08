@@ -2,6 +2,7 @@ import { compile } from './compiler';
 import {
   DataType,
   Func,
+  FuncImport,
   Instr,
   IntegerDataType,
   NumericDataType,
@@ -42,6 +43,7 @@ export type Global = {
 
 export class Module {
   funcs: Func<DataType>[] = [];
+  funcImports: FuncImport<DataType>[] = [];
   memories: Memory[] = [];
   tables: Table[] = [];
   globals: Global[] = [];
@@ -54,6 +56,10 @@ export class Module {
       func.exportName = typeof exported === 'boolean' ? func.name : exported;
     }
     this.funcs.push(func);
+  };
+
+  addFuncImport = (funcImport: FuncImport<DataType>) => {
+    this.funcImports.push(funcImport);
   };
 
   addMemory = (
