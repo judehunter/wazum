@@ -433,6 +433,24 @@ export const compile = (m: Module) => {
     {
       fn: 'module',
       blockArgs: [
+        ...m.funcImports.map((funcImport) =>
+          compileSExpression(
+            {
+              fn: 'import',
+              inlineArgs: [`"${funcImport.importPath}"`, `"${funcImport.importName}"`, `(func $${funcImport.name}`],
+              blockArgs: [
+                ...funcImport.params.map(
+                  ([dt, name]) => space(3) + `(param ${dt})`,
+                ),
+                funcImport.dataType !== 'none'
+                  ? space(3) + `(result ${funcImport.dataType})`
+                  : null,
+                space(2) + ")"
+              ],
+            },
+            1,
+          ),
+        ),
         ...m.memories.flatMap((mem) => [
           compileSExpression(
             {
@@ -491,24 +509,6 @@ export const compile = (m: Module) => {
             ),
           ),
         ]),
-        ...m.funcImports.map((func) =>
-          compileSExpression(
-            {
-              fn: 'import',
-              inlineArgs: [`"${func.importPath}"`, `"${func.importName}"`, `(func $${func.name}`],
-              blockArgs: [
-                ...func.params.map(
-                  ([dt, name]) => space(3) + `(param ${dt})`,
-                ),
-                func.dataType !== 'none'
-                  ? space(3) + `(result ${func.dataType})`
-                  : null,
-                space(2) + ")"
-              ],
-            },
-            1,
-          ),
-        ),
         ...m.globals.map((global) =>
           compileSExpression(
             {
