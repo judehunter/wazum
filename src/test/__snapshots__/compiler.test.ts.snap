@@ -15,6 +15,17 @@ exports[`compiler add function (local.get, i32.add, exported func) 1`] = `
 )"
 `;
 
+exports[`compiler add function import 1`] = `
+"(module
+ (import "env" "host_add" (func $add
+   (param i32)
+   (param i32)
+   (result i32)
+  )
+ )
+)"
+`;
+
 exports[`compiler add node 1`] = `
 "(i32.add
  (i32.const 10)

@@ -57,7 +57,6 @@ import {
   GreaterThanSigned,
   GreaterThanUnsigned,
 } from './nodes';
-import { match } from 'ts-pattern';
 
 // const trimdent = (str: string) => {
 //   const trimmed = str.trim();
@@ -434,6 +433,24 @@ export const compile = (m: Module) => {
     {
       fn: 'module',
       blockArgs: [
+        ...m.funcImports.map((funcImport) =>
+          compileSExpression(
+            {
+              fn: 'import',
+              inlineArgs: [`"${funcImport.importPath}"`, `"${funcImport.importName}"`, `(func $${funcImport.name}`],
+              blockArgs: [
+                ...funcImport.params.map(
+                  ([dt, name]) => space(3) + `(param ${dt})`,
+                ),
+                funcImport.dataType !== 'none'
+                  ? space(3) + `(result ${funcImport.dataType})`
+                  : null,
+                space(2) + ")"
+              ],
+            },
+            1,
+          ),
+        ),
         ...m.memories.flatMap((mem) => [
           compileSExpression(
             {
